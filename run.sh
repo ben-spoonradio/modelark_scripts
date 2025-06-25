@@ -4,11 +4,29 @@
 # 이 스크립트를 실행하면 자동으로 동영상 생성기가 시작됩니다.
 
 echo "🎬 쉬운 동영상 생성기를 시작합니다..."
-echo "📁 작업 폴더: /Users/moonbc/source/modelark_scripts"
+echo "📁 작업 폴더: $(pwd)"
 echo ""
 
-# 작업 폴더로 이동
-cd /Users/moonbc/source/modelark_scripts
+# 작업 폴더로 이동 (스크립트가 있는 디렉토리)
+cd "$(dirname "$0")"
+
+# Homebrew 설치 확인
+if ! command -v brew &> /dev/null; then
+    echo "📦 Homebrew를 설치하는 중..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Python 설치 확인
+if ! command -v python &> /dev/null; then
+    echo "🐍 Python을 설치하는 중..."
+    brew install python
+fi
+
+# requests 모듈 설치 확인
+if ! python -c "import requests" &> /dev/null; then
+    echo "📦 requests 모듈을 설치하는 중..."
+    python -m pip install requests
+fi
 
 # API 키 확인
 if [ -z "$ARK_API_KEY" ]; then
@@ -40,7 +58,7 @@ echo "🚀 동영상 생성기를 실행합니다..."
 echo ""
 
 # Python 스크립트 실행
-python3 easy_video_maker.py
+python easy_video_maker.py
 
 echo ""
 echo "🏁 프로그램이 종료되었습니다."
