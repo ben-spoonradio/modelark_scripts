@@ -20,6 +20,7 @@ import requests
 import time
 import json
 import os
+import sys
 from typing import Optional
 import logging
 
@@ -37,6 +38,134 @@ class EasyVideoMaker:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}"
         }
+    
+    def check_task_status(self, task_id: str) -> Optional[dict]:
+        """특정 작업의 상태 확인"""
+        print(f"🔍 작업 상태를 확인합니다: {task_id}")
+        
+        check_url = f"{self.base_url}/api/v3/contents/generations/tasks/{task_id}"
+        
+        try:
+            response = requests.get(check_url, headers=self.headers)
+            response.raise_for_status()
+            result = response.json()
+            
+            status = result.get("status")
+            created_at = result.get("created_at")
+            updated_at = result.get("updated_at")
+            
+            print(f"📊 작업 정보:")
+            print(f"   ID: {task_id}")
+            print(f"   상태: {status}")
+            
+            if created_at:
+                created_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at))
+                print(f"   생성 시간: {created_time}")
+            
+            if updated_at:
+                updated_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(updated_at))
+                print(f"   업데이트 시간: {updated_time}")
+            
+            if status == "succeeded":
+                video_url = result.get("content", {}).get("video_url")
+                if video_url:
+                    print(f"✅ 완료! 동영상 다운로드 가능")
+                    print(f"   다운로드 URL: {video_url}")
+                    
+                    # 토큰 사용량 표시
+                    usage = result.get("usage", {})
+                    if usage.get("completion_tokens"):
+                        print(f"   토큰 사용량: {usage['completion_tokens']:,}")
+                    
+                    # 다운로드 옵션 제공
+                    download = input("\n📥 지금 다운로드하시겠습니까? (y/n): ").strip().lower()
+                    if download == 'y':
+                        return self._download_video(video_url)
+                    
+            elif status == "failed":
+                error_info = result.get("error", {})
+                error_code = error_info.get("code", "Unknown")
+                error_message = error_info.get("message", "알 수 없는 오류")
+                
+                print(f"❌ 실패:")
+                print(f"   오류 코드: {error_code}")
+                print(f"   오류 내용: {error_message}")
+                
+            elif status in ["queued", "running"]:
+                print(f"⏳ 진행 중... 잠시 후 다시 확인해보세요.")
+                
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            print(f"❌ 네트워크 오류: {e}")
+            return None
+        except Exception as e:
+            print(f"❌ 오류: 상태 확인 실패 - {e}")
+            return None
+    
+    def list_recent_tasks(self, limit: int = 10) -> Optional[list]:
+        """최근 작업 목록 조회"""
+        print(f"📋 최근 작업 {limit}개를 조회합니다...")
+        
+        list_url = f"{self.base_url}/api/v3/contents/generations/tasks"
+        params = {
+            "page_num": 1,
+            "page_size": limit
+        }
+        
+        try:
+            response = requests.get(list_url, headers=self.headers, params=params)
+            response.raise_for_status()
+            result = response.json()
+            
+            tasks = result.get("items", [])
+            total = result.get("total", 0)
+            
+            if not tasks:
+                print("📭 최근 작업이 없습니다.")
+                return []
+            
+            print(f"📊 총 {total}개 작업 중 최근 {len(tasks)}개:")
+            print()
+            
+            for i, task in enumerate(tasks, 1):
+                task_id = task.get("id", "")
+                status = task.get("status", "")
+                created_at = task.get("created_at")
+                model = task.get("model", "")
+                
+                status_emoji = {
+                    "succeeded": "✅",
+                    "failed": "❌", 
+                    "running": "⏳",
+                    "queued": "🔄"
+                }.get(status, "❓")
+                
+                created_time = ""
+                if created_at:
+                    created_time = time.strftime('%m-%d %H:%M', time.localtime(created_at))
+                
+                print(f"{i:2d}. {status_emoji} {task_id} [{status}] {created_time}")
+                if model:
+                    model_short = model.split('-')[-1] if '-' in model else model
+                    print(f"     모델: {model_short}")
+                
+                # 실패한 경우 오류 정보 표시
+                if status == "failed":
+                    error_info = task.get("error", {})
+                    if error_info.get("code"):
+                        print(f"     오류: {error_info.get('code', '')}")
+                
+                print()
+            
+            return tasks
+            
+        except requests.exceptions.RequestException as e:
+            print(f"❌ 네트워크 오류: {e}")
+            return None
+        except Exception as e:
+            print(f"❌ 오류: 작업 목록 조회 실패 - {e}")
+            return None
     
     def create_video(self, description: str, image_url: str = None, video_config: dict = None) -> Optional[str]:
         """동영상을 만들고 파일로 저장합니다"""
@@ -139,40 +268,77 @@ class EasyVideoMaker:
         """동영상 완성까지 기다리기"""
         print("⏳ 동영상을 만들고 있습니다. 잠시만 기다려주세요...")
         print("   (보통 1-3분 정도 걸립니다)")
+        print(f"   작업 ID: {task_id}")
+        print()
         
         check_url = f"{self.base_url}/api/v3/contents/generations/tasks/{task_id}"
+        start_time = time.time()
         
-        for i in range(30):  # 최대 5분 대기 (10초씩 30번)
+        for i in range(60):  # 최대 10분 대기 (10초씩 60번)
             try:
                 response = requests.get(check_url, headers=self.headers)
                 response.raise_for_status()
                 result = response.json()
                 
                 status = result.get("status")
+                elapsed_time = int(time.time() - start_time)
                 
                 if status == "succeeded":
                     video_url = result.get("content", {}).get("video_url")
                     if video_url:
-                        print("🎉 동영상이 완성되었습니다!")
+                        print(f"\n🎉 동영상이 완성되었습니다! (소요시간: {elapsed_time}초)")
+                        # 토큰 사용량 표시
+                        usage = result.get("usage", {})
+                        if usage.get("completion_tokens"):
+                            print(f"📊 토큰 사용량: {usage['completion_tokens']:,} 토큰")
                         return video_url
                     else:
-                        print("❌ 오류: 동영상 주소를 찾을 수 없습니다.")
+                        print("\n❌ 오류: 동영상 주소를 찾을 수 없습니다.")
                         return None
                 
                 elif status == "failed":
-                    print("❌ 오류: 동영상 생성에 실패했습니다.")
+                    error_info = result.get("error", {})
+                    error_code = error_info.get("code", "Unknown")
+                    error_message = error_info.get("message", "알 수 없는 오류")
+                    
+                    print(f"\n❌ 동영상 생성 실패:")
+                    print(f"   오류 코드: {error_code}")
+                    print(f"   오류 내용: {error_message}")
+                    
+                    # 일반적인 오류에 대한 안내
+                    if "SensitiveContent" in error_code:
+                        print("💡 해결방법: 프롬프트 내용을 수정해서 다시 시도해보세요.")
+                    elif "QuotaExceeded" in error_code:
+                        print("💡 해결방법: 잠시 후 다시 시도해보세요. (할당량 초과)")
+                    
                     return None
                 
-                else:  # 진행 중
+                elif status == "queued":
                     dots = "." * ((i % 3) + 1)
-                    print(f"\r   작업 중{dots}   ", end="", flush=True)
+                    print(f"\r   대기 중{dots} ({elapsed_time}초 경과)   ", end="", flush=True)
+                    time.sleep(5)  # 대기중일 때는 5초마다 확인
+                    
+                elif status == "running":
+                    dots = "." * ((i % 3) + 1)
+                    print(f"\r   생성 중{dots} ({elapsed_time}초 경과)   ", end="", flush=True)
+                    time.sleep(10)  # 실행중일 때는 10초마다 확인
+                    
+                else:  # 기타 상태
+                    dots = "." * ((i % 3) + 1)
+                    print(f"\r   작업 중{dots} 상태: {status} ({elapsed_time}초 경과)   ", end="", flush=True)
                     time.sleep(10)
             
+            except requests.exceptions.RequestException as e:
+                print(f"\n❌ 네트워크 오류: {e}")
+                print("💡 인터넷 연결을 확인하고 다시 시도해주세요.")
+                return None
             except Exception as e:
                 print(f"\n❌ 오류: 상태 확인 실패 - {e}")
                 return None
         
-        print("\n❌ 오류: 시간이 너무 오래 걸립니다. 나중에 다시 시도해주세요.")
+        print(f"\n⏰ 시간 초과: 10분이 지났습니다.")
+        print("💡 작업이 계속 진행 중일 수 있습니다. 잠시 후 다음 명령어로 확인해보세요:")
+        print(f"   python easy_video_maker.py --check {task_id}")
         return None
     
     def _download_video(self, video_url: str) -> Optional[str]:
@@ -348,6 +514,54 @@ camerafixed=false
 def main():
     """메인 실행 함수"""
     
+    # 커맨드라인 인수 처리
+    if len(sys.argv) > 1:
+        command = sys.argv[1]
+        
+        # API 키 확인
+        api_key = os.getenv("ARK_API_KEY")
+        if not api_key:
+            print("❌ 오류: API 키가 설정되지 않았습니다.")
+            print("💡 export ARK_API_KEY=your_api_key 를 먼저 실행하세요.")
+            return
+        
+        video_maker = EasyVideoMaker(api_key)
+        
+        if command == "--check" and len(sys.argv) > 2:
+            # 특정 작업 상태 확인
+            task_id = sys.argv[2]
+            video_maker.check_task_status(task_id)
+            return
+        
+        elif command == "--list":
+            # 최근 작업 목록 조회
+            limit = 10
+            if len(sys.argv) > 2 and sys.argv[2].isdigit():
+                limit = int(sys.argv[2])
+            video_maker.list_recent_tasks(limit)
+            return
+        
+        elif command == "--help":
+            print("🎥 쉬운 동영상 생성기 - 명령어 도움말")
+            print("=" * 50)
+            print()
+            print("사용법:")
+            print("  python easy_video_maker.py                    # 일반 실행")
+            print("  python easy_video_maker.py --check <task_id>  # 작업 상태 확인")
+            print("  python easy_video_maker.py --list [개수]      # 최근 작업 목록")
+            print("  python easy_video_maker.py --help             # 이 도움말")
+            print()
+            print("예시:")
+            print("  python easy_video_maker.py --check cgt-2024****-**")
+            print("  python easy_video_maker.py --list 20")
+            return
+        
+        else:
+            print("❌ 알 수 없는 명령어입니다.")
+            print("💡 python easy_video_maker.py --help 를 실행해보세요.")
+            return
+    
+    # 일반 실행 모드
     print("🎥 쉬운 동영상 생성기")
     print("=" * 40)
     print()
