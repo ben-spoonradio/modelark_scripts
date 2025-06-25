@@ -1,0 +1,18 @@
+# 동영상 생성 설정 파일
+# 아래 주소를 원하는 이미지 주소로 바꾸세요
+
+image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
+
+# 참고사항:
+# - 이미지는 인터넷에서 접근 가능한 주소여야 합니다
+# - 지원되는 이미지 형식: JPG, PNG, GIF, WebP
+# - 이미지 크기는 너무 크지 않은 것이 좋습니다 (5MB 이하 권장)
+
+# Mac에서 이미지 주소 구하는 방법:
+# 1. iCloud 사진: Photos 앱 → 이미지 선택 → 우클릭 → "Copy iCloud Link"
+# 2. 구글 드라이브: 이미지 업로드 → 우클릭 → "링크 가져오기" → 공개 설정
+# 3. 이미지 호스팅: imgur.com, postimages.org 등에 업로드
+
+# 다른 이미지 주소 예시:
+# image_url=https://example.com/my-photo.jpg
+# image_url=https://cdn.pixabay.com/photo/2023/01/01/sample.jpg
