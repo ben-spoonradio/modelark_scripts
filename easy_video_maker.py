@@ -38,12 +38,15 @@ class EasyVideoMaker:
             "Authorization": f"Bearer {api_key}"
         }
     
-    def create_video(self, description: str, image_url: str) -> Optional[str]:
+    def create_video(self, description: str, image_url: str = None) -> Optional[str]:
         """동영상을 만들고 파일로 저장합니다"""
         
         print("🎬 동영상 생성을 시작합니다...")
         print(f"📝 설명: {description[:50]}{'...' if len(description) > 50 else ''}")
-        print(f"🖼️  이미지: {image_url}")
+        if image_url:
+            print(f"🖼️  이미지: {image_url}")
+        else:
+            print("📝 텍스트만으로 동영상을 생성합니다")
         print()
         
         # 1단계: 동영상 생성 요청
@@ -59,16 +62,28 @@ class EasyVideoMaker:
         # 3단계: 동영상 다운로드
         return self._download_video(video_url)
     
-    def _start_generation(self, description: str, image_url: str) -> Optional[str]:
+    def _start_generation(self, description: str, image_url: str = None) -> Optional[str]:
         """동영상 생성 시작"""
         url = f"{self.base_url}/api/v3/contents/generations/tasks"
         
-        data = {
-            "model": "seedance-1-0-lite-i2v-250428",
-            "content": [
+        # 이미지가 있으면 i2v 모델, 없으면 t2v 모델 사용
+        if image_url:
+            model = "seedance-1-0-lite-i2v-250428"
+            content = [
                 {"type": "text", "text": description},
                 {"type": "image_url", "image_url": {"url": image_url}}
             ]
+            print("🎬 이미지-to-비디오 모드로 생성합니다")
+        else:
+            model = "seedance-1-0-lite-t2v-250428"
+            content = [
+                {"type": "text", "text": description}
+            ]
+            print("📝 텍스트-to-비디오 모드로 생성합니다")
+        
+        data = {
+            "model": model,
+            "content": content
         }
         
         try:
@@ -187,22 +202,23 @@ def read_prompt_file() -> str:
 
 
 def read_config_file() -> Optional[str]:
-    """config.txt 파일에서 이미지 주소 읽기"""
+    """config.txt 파일에서 이미지 주소 읽기 (없으면 None 반환)"""
     try:
         with open("config.txt", "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                if line.startswith("image_url="):
+                # 주석이 아니고 image_url로 시작하는 줄 찾기
+                if line.startswith("image_url=") and not line.startswith("#"):
                     url = line.replace("image_url=", "").strip()
                     if url:
                         return url
             
-        print("⚠️  경고: config.txt 파일에서 image_url을 찾을 수 없습니다.")
+        # image_url이 없거나 모두 주석 처리된 경우
+        print("ℹ️  config.txt에서 image_url을 찾을 수 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
         return None
         
     except FileNotFoundError:
-        print("❌ 오류: config.txt 파일을 찾을 수 없습니다.")
-        print("📝 config.txt 파일을 만들고 이미지 주소를 입력해주세요.")
+        print("ℹ️  config.txt 파일이 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
         return None
     except Exception as e:
         print(f"❌ 오류: config.txt 파일 읽기 실패 - {e}")
@@ -227,9 +243,14 @@ def create_example_files():
     # config.txt 예시 파일
     if not os.path.exists("config.txt"):
         example_config = """# 동영상 생성 설정 파일
-# 아래 주소를 원하는 이미지 주소로 바꾸세요
+# 이미지를 사용하려면 아래 주소를 원하는 이미지 주소로 바꾸세요
+# 이미지 없이 텍스트만으로 동영상을 만들려면 아래 줄을 주석 처리하거나 삭제하세요
 
 image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
+
+# 두 가지 모드:
+# 1. 이미지-to-비디오 (i2v): 위 image_url 사용
+# 2. 텍스트-to-비디오 (t2v): image_url 줄을 삭제하거나 # 으로 주석 처리
 
 # 참고: 이미지는 인터넷에서 접근 가능한 주소여야 합니다
 # 예시: https://example.com/my-image.jpg"""
@@ -275,10 +296,6 @@ def main():
         return
     
     image_url = read_config_file()
-    if not image_url:
-        print("\n💡 config.txt 파일을 확인하고 다시 실행해주세요.")
-        input("아무 키나 눌러서 종료하세요...")
-        return
     
     print("✅ 설정 파일을 모두 읽었습니다!")
     print()
@@ -286,7 +303,11 @@ def main():
     # 설정 내용 확인
     print("📋 확인된 설정:")
     print(f"   동영상 설명: {prompt_text[:60]}{'...' if len(prompt_text) > 60 else ''}")
-    print(f"   이미지 주소: {image_url[:60]}{'...' if len(image_url) > 60 else ''}")
+    if image_url:
+        print(f"   이미지 주소: {image_url[:60]}{'...' if len(image_url) > 60 else ''}")
+        print("   모드: 이미지-to-비디오 (i2v)")
+    else:
+        print("   모드: 텍스트-to-비디오 (t2v)")
     print()
     
     # 사용자 확인
