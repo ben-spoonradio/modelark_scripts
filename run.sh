@@ -22,10 +22,25 @@ if ! command -v python &> /dev/null; then
     brew install python
 fi
 
-# requests 모듈 설치 확인
+# 필요한 Python 모듈들 설치 확인
+echo "📦 필요한 Python 모듈들을 확인하는 중..."
+
+# requests 모듈 확인
 if ! python -c "import requests" &> /dev/null; then
-    echo "📦 requests 모듈을 설치하는 중..."
+    echo "📦 requests 모듈 설치 중..."
     python -m pip install requests
+fi
+
+# Pillow (이미지 처리) 모듈 확인
+if ! python -c "import PIL" &> /dev/null; then
+    echo "🖼️ Pillow 모듈 설치 중..."
+    python -m pip install Pillow
+fi
+
+# OpenCV (동영상 처리) 모듈 확인
+if ! python -c "import cv2" &> /dev/null; then
+    echo "🎥 OpenCV 모듈 설치 중..."
+    python -m pip install opencv-python
 fi
 
 # API 키 확인
