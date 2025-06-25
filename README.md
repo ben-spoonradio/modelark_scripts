@@ -23,7 +23,7 @@ modelark_scripts/
 
 ### 2. 폴더로 이동
 ```bash
-cd /Users/moonbc/source/modelark_scripts
+cd 다운로드한_폴더_경로/modelark_scripts
 ```
 
 ### 3. 쉬운 실행 스크립트 사용
@@ -31,10 +31,14 @@ cd /Users/moonbc/source/modelark_scripts
 ./run.sh
 ```
 
-이 스크립트가 모든 것을 자동으로 처리해줍니다:
-- API 키 설정 도움
-- 동영상 생성기 실행
-- 문제 해결 안내
+이 스크립트가 **모든 환경을 자동으로 설정**해줍니다:
+- ✅ Homebrew 자동 설치 (없을 경우)
+- ✅ Python 자동 설치 (없을 경우)  
+- ✅ 필요한 모듈 자동 설치
+- ✅ API 키 설정 도움
+- ✅ 동영상 생성기 실행
+
+**맥 초보자도 걱정 없이 사용 가능합니다!**
 
 ## 📝 파일 편집 방법
 
@@ -55,17 +59,23 @@ cd /Users/moonbc/source/modelark_scripts
 # API 키 설정
 export ARK_API_KEY=your_api_key
 
-# 쉬운 버전 실행
-python3 easy_video_maker.py
+# 쉬운 버전 실행 (brew Python 사용)
+python easy_video_maker.py
 
 # 또는 고급 버전 실행
-python3 image_to_video_converter.py
+python image_to_video_converter.py
 ```
 
-### 의존성 설치
+### 수동 환경 설정 (선택사항)
 ```bash
-pip3 install requests
+# Homebrew로 Python 설치
+brew install python
+
+# 의존성 설치
+python -m pip install requests
 ```
+
+**권장**: 대신 `./run.sh` 스크립트 사용하면 자동으로 모든 환경이 설정됩니다.
 
 ## 🔍 스크립트 차이점
 
@@ -101,10 +111,16 @@ pip3 install requests
 
 ## 🆘 도움이 필요하면
 
-1. **먼저 확인**: `사용법.md` 파일
-2. **API 키 문제**: `./run.sh` 스크립트 사용
-3. **파일 편집**: TextEdit에서 Plain Text 모드로
-4. **한글 깨짐**: UTF-8 인코딩으로 저장
+1. **환경 설정 문제**: `./run.sh` 스크립트가 자동으로 해결
+2. **먼저 확인**: `사용법.md` 파일  
+3. **API 키 문제**: 스크립트 실행 중 설정 안내 따라하기
+4. **파일 편집**: TextEdit에서 Plain Text 모드로
+5. **한글 깨짐**: UTF-8 인코딩으로 저장
+
+### 🔧 문제 해결 순서
+1. `./run.sh` 실행 → 자동 환경 설정
+2. API 키 입력 → 안내 메시지 따라하기  
+3. 문제 지속 → `사용법.md` 참조
 
 ## 🎊 성공 사례
 
