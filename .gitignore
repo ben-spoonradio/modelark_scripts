@@ -9,3 +9,4 @@ response.json
 # OpenAI 코드 리뷰 및 커밋 메시지 관련 파일
 reviews/
 videos/
+images/

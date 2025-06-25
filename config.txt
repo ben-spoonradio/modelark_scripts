@@ -2,7 +2,7 @@
 # 아래 주소를 원하는 이미지 주소로 바꾸세요
 
 # image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
-
+image_file=./images/sample.jpeg
 resolution=720p
 # ratio=16:9
 ratio=9:16

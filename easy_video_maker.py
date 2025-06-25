@@ -21,6 +21,8 @@ import time
 import json
 import os
 import sys
+import base64
+import mimetypes
 from typing import Optional
 import logging
 
@@ -167,6 +169,94 @@ class EasyVideoMaker:
             print(f"❌ 오류: 작업 목록 조회 실패 - {e}")
             return None
     
+    def encode_image_to_base64(self, image_path: str) -> Optional[str]:
+        """로컬 이미지 파일을 Base64로 인코딩"""
+        try:
+            # 파일 존재 확인
+            if not os.path.exists(image_path):
+                print(f"❌ 이미지 파일을 찾을 수 없습니다: {image_path}")
+                return None
+            
+            # 파일 크기 확인 (10MB 제한)
+            file_size = os.path.getsize(image_path)
+            if file_size > 10 * 1024 * 1024:
+                print(f"❌ 이미지 파일이 너무 큽니다: {file_size / (1024*1024):.1f}MB (최대 10MB)")
+                return None
+            
+            # MIME 타입 확인
+            mime_type, _ = mimetypes.guess_type(image_path)
+            if not mime_type or not mime_type.startswith('image/'):
+                print(f"❌ 지원되지 않는 이미지 형식입니다: {image_path}")
+                print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF")
+                return None
+            
+            # 지원되는 형식 확인
+            supported_formats = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/gif']
+            if mime_type not in supported_formats:
+                print(f"❌ 지원되지 않는 이미지 형식입니다: {mime_type}")
+                print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF")
+                return None
+            
+            print(f"📸 이미지를 Base64로 인코딩하는 중... ({file_size / 1024:.1f}KB)")
+            
+            # 파일 읽기 및 Base64 인코딩
+            with open(image_path, 'rb') as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            
+            # data URL 형식으로 반환
+            data_url = f"data:{mime_type};base64,{encoded_string}"
+            
+            # Base64 크기 확인 (API 제한 확인을 위해)
+            base64_size_mb = len(data_url) / (1024 * 1024)
+            print(f"✅ Base64 인코딩 완료! (크기: {base64_size_mb:.2f}MB)")
+            
+            if base64_size_mb > 20:  # 임의 제한 - API 문서에서 명확한 제한이 없음
+                print("⚠️  Base64 데이터가 매우 큽니다. 작은 이미지를 사용해보세요.")
+            
+            return data_url
+            
+        except Exception as e:
+            print(f"❌ Base64 인코딩 실패: {e}")
+            return None
+    
+    def validate_image_dimensions(self, image_path: str) -> bool:
+        """이미지 크기 검증 (API 요구사항 확인)"""
+        try:
+            from PIL import Image
+            
+            with Image.open(image_path) as img:
+                width, height = img.size
+                
+                # 화면비 확인 (0.4 ~ 2.5)
+                aspect_ratio = width / height
+                if aspect_ratio < 0.4 or aspect_ratio > 2.5:
+                    print(f"❌ 이미지 화면비가 범위를 벗어났습니다: {aspect_ratio:.2f}")
+                    print("💡 허용 범위: 0.4 ~ 2.5 (2:5 ~ 5:2)")
+                    return False
+                
+                # 픽셀 크기 확인
+                min_side = min(width, height)
+                max_side = max(width, height)
+                
+                if min_side < 300:
+                    print(f"❌ 이미지가 너무 작습니다: {min_side}px (최소 300px)")
+                    return False
+                
+                if max_side > 6000:
+                    print(f"❌ 이미지가 너무 큽니다: {max_side}px (최대 6000px)")
+                    return False
+                
+                print(f"✅ 이미지 크기 검증 통과: {width}x{height} (비율: {aspect_ratio:.2f})")
+                return True
+                
+        except ImportError:
+            print("⚠️  PIL 라이브러리가 없어서 이미지 크기 검증을 건너뜁니다.")
+            print("💡 정확한 검증을 위해 'pip install Pillow'를 실행하세요.")
+            return True
+        except Exception as e:
+            print(f"⚠️  이미지 크기 검증 실패: {e}")
+            return True
+    
     def create_video(self, description: str, image_url: str = None, video_config: dict = None) -> Optional[str]:
         """동영상을 만들고 파일로 저장합니다"""
         
@@ -181,13 +271,26 @@ class EasyVideoMaker:
             print("📝 텍스트만으로 동영상을 생성합니다")
         
         # 비디오 설정 표시
-        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {video_config.get('ratio', '16:9')} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps")
+        display_ratio = video_config.get('ratio', '16:9')
+        if image_url and display_ratio not in ['adaptive', 'keep_ratio']:
+            display_ratio = f"{display_ratio} → adaptive (i2v 제한)"
+        
+        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {display_ratio} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps")
         print()
         
         # 1단계: 동영상 생성 요청
         task_id = self._start_generation(description, image_url, video_config)
         if not task_id:
             return None
+        
+        # 콜백 URL이 설정된 경우 기다리지 않고 task_id만 반환
+        if video_config.get('callback_url'):
+            print("📞 콜백 URL이 설정되어 있습니다.")
+            print("🔔 작업 완료 시 자동으로 알림을 받게 됩니다.")
+            print(f"📋 작업 ID: {task_id}")
+            print("💡 수동으로 상태를 확인하려면:")
+            print(f"   python easy_video_maker.py --check {task_id}")
+            return task_id
         
         # 2단계: 완료까지 기다리기
         video_url = self._wait_for_video(task_id)
@@ -209,8 +312,19 @@ class EasyVideoMaker:
         
         # API 문서에 따른 파라미터 추가
         params = []
-        if video_config.get('ratio'):
-            params.append(f"--ratio {video_config['ratio']}")
+        
+        # 이미지가 있는 경우 (i2v)와 없는 경우 (t2v)에 따라 파라미터 제한
+        if image_url:
+            # i2v 모델에서는 ratio가 adaptive만 지원
+            if video_config.get('ratio') and video_config['ratio'] != 'keep_ratio':
+                params.append("--ratio adaptive")
+            elif video_config.get('ratio') == 'keep_ratio':
+                params.append("--ratio keep_ratio")
+        else:
+            # t2v 모델에서는 모든 ratio 지원
+            if video_config.get('ratio'):
+                params.append(f"--ratio {video_config['ratio']}")
+        
         if video_config.get('resolution'):
             params.append(f"--resolution {video_config['resolution']}")
         if video_config.get('duration'):
@@ -230,9 +344,30 @@ class EasyVideoMaker:
         # 이미지가 있으면 i2v 모델, 없으면 t2v 모델 사용
         if image_url:
             model = "seedance-1-0-lite-i2v-250428"
+            
+            # 로컬 파일인지 URL인지 확인
+            if os.path.exists(image_url):
+                print(f"📁 로컬 이미지 파일 감지: {image_url}")
+                
+                # 이미지 크기 검증
+                if not self.validate_image_dimensions(image_url):
+                    print("❌ 이미지 크기 검증 실패")
+                    return None
+                
+                # Base64로 인코딩
+                base64_image = self.encode_image_to_base64(image_url)
+                if not base64_image:
+                    return None
+                
+                final_image_url = base64_image
+                print("🔄 로컬 이미지를 Base64로 변환하여 사용합니다")
+            else:
+                final_image_url = image_url
+                print("🌐 URL 이미지를 사용합니다")
+            
             content = [
                 {"type": "text", "text": text_prompt},
-                {"type": "image_url", "image_url": {"url": image_url}}
+                {"type": "image_url", "image_url": {"url": final_image_url}}
             ]
             print("🎬 이미지-to-비디오 모드로 생성합니다")
         else:
@@ -247,9 +382,24 @@ class EasyVideoMaker:
             "content": content
         }
         
+        # 콜백 URL이 설정되어 있으면 추가
+        if video_config.get('callback_url'):
+            data['callback_url'] = video_config['callback_url']
+            print(f"📞 콜백 URL 설정: {video_config['callback_url']}")
+        
         try:
             response = requests.post(url, headers=self.headers, json=data)
-            response.raise_for_status()
+            
+            if response.status_code != 200:
+                print(f"❌ API 오류: HTTP {response.status_code}")
+                try:
+                    error_data = response.json()
+                    print(f"📋 오류 상세:")
+                    print(f"   {error_data}")
+                except:
+                    print(f"📋 오류 내용: {response.text}")
+                return None
+            
             result = response.json()
             
             task_id = result.get("id")
@@ -258,10 +408,14 @@ class EasyVideoMaker:
                 return task_id
             else:
                 print("❌ 오류: 작업 ID를 받지 못했습니다.")
+                print(f"📋 응답 내용: {result}")
                 return None
                 
+        except requests.exceptions.RequestException as e:
+            print(f"❌ 네트워크 오류: {e}")
+            return None
         except Exception as e:
-            print(f"❌ 오류: 동영상 생성 요청 실패 - {e}")
+            print(f"❌ 예상치 못한 오류: {e}")
             return None
     
     def _wait_for_video(self, task_id: str) -> Optional[str]:
@@ -399,7 +553,72 @@ def read_prompt_file() -> str:
         return None
 
 
-def read_config_file() -> tuple[Optional[str], dict]:
+def select_image_from_folder() -> Optional[str]:
+    """images 폴더에서 이미지 선택"""
+    images_dir = "images"
+    
+    # images 폴더가 없으면 생성
+    if not os.path.exists(images_dir):
+        os.makedirs(images_dir)
+        print(f"📁 {images_dir} 폴더를 생성했습니다.")
+        print("💡 이 폴더에 이미지 파일을 넣고 다시 실행하세요.")
+        return None
+    
+    # 지원되는 이미지 확장자
+    image_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff', '.gif'}
+    
+    # 이미지 파일 찾기
+    image_files = []
+    for file in os.listdir(images_dir):
+        if os.path.splitext(file.lower())[1] in image_extensions:
+            image_files.append(file)
+    
+    if not image_files:
+        print(f"❌ {images_dir} 폴더에 이미지 파일이 없습니다.")
+        print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF")
+        return None
+    
+    # 이미지 파일 목록 표시
+    print(f"📁 {images_dir} 폴더의 이미지 파일들:")
+    print()
+    
+    for i, file in enumerate(image_files, 1):
+        file_path = os.path.join(images_dir, file)
+        file_size = os.path.getsize(file_path) / 1024  # KB
+        print(f"  {i:2d}. {file} ({file_size:.1f}KB)")
+    
+    print(f"  {len(image_files) + 1:2d}. 이미지 없이 텍스트만 사용")
+    print()
+    
+    # 사용자 선택
+    while True:
+        try:
+            choice = input(f"이미지를 선택하세요 (1-{len(image_files) + 1}): ").strip()
+            
+            if not choice:
+                print("❌ 선택해주세요.")
+                continue
+                
+            choice_num = int(choice)
+            
+            if choice_num == len(image_files) + 1:
+                # 텍스트만 사용
+                return None
+            elif 1 <= choice_num <= len(image_files):
+                selected_file = image_files[choice_num - 1]
+                selected_path = os.path.join(images_dir, selected_file)
+                print(f"✅ 선택된 이미지: {selected_file}")
+                return selected_path
+            else:
+                print(f"❌ 1-{len(image_files) + 1} 사이의 숫자를 입력하세요.")
+                
+        except ValueError:
+            print("❌ 숫자를 입력하세요.")
+        except KeyboardInterrupt:
+            print("\n❌ 사용자가 취소했습니다.")
+            return None
+
+def read_config_file() -> dict:
     """config.txt 파일에서 설정 읽기 (이미지 URL과 비디오 파라미터)"""
     config = {
         'resolution': '720p',
@@ -408,10 +627,9 @@ def read_config_file() -> tuple[Optional[str], dict]:
         'fps': 24,
         'watermark': False,
         'seed': -1,
-        'camerafixed': False
+        'camerafixed': False,
+        'callback_url': None
     }
-    image_url = None
-    
     try:
         with open("config.txt", "r", encoding="utf-8") as f:
             for line in f:
@@ -422,9 +640,7 @@ def read_config_file() -> tuple[Optional[str], dict]:
                     key = key.strip()
                     value = value.strip()
                     
-                    if key == "image_url" and value:
-                        image_url = value
-                    elif key == "resolution" and value in ["480p", "720p"]:
+                    if key == "resolution" and value in ["480p", "720p"]:
                         config['resolution'] = value
                     elif key == "ratio" and value in ["16:9", "4:3", "1:1", "3:4", "9:16", "21:9", "9:21", "keep_ratio"]:
                         config['ratio'] = value
@@ -438,18 +654,17 @@ def read_config_file() -> tuple[Optional[str], dict]:
                         config['seed'] = int(value)
                     elif key == "camerafixed" and value.lower() in ["true", "false"]:
                         config['camerafixed'] = value.lower() == "true"
-            
-        if not image_url:
-            print("ℹ️  config.txt에서 image_url을 찾을 수 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
+                    elif key == "callback_url" and value.startswith("http"):
+                        config['callback_url'] = value
         
-        return image_url, config
+        return config
         
     except FileNotFoundError:
-        print("ℹ️  config.txt 파일이 없습니다. 기본 설정으로 텍스트-to-비디오 모드로 실행합니다.")
-        return None, config
+        print("ℹ️  config.txt 파일이 없습니다. 기본 설정을 사용합니다.")
+        return config
     except Exception as e:
         print(f"❌ 오류: config.txt 파일 읽기 실패 - {e}")
-        return None, config
+        return config
 
 
 def create_example_files():
@@ -469,20 +684,18 @@ def create_example_files():
     
     # config.txt 예시 파일
     if not os.path.exists("config.txt"):
-        example_config = """# 동영상 생성 설정 파일
-# 이미지를 사용하려면 아래 주소를 원하는 이미지 주소로 바꾸세요
-# 이미지 없이 텍스트만으로 동영상을 만들려면 아래 줄을 주석 처리하거나 삭제하세요
+        example_config = """# 🎬 동영상 생성 설정 파일
+# 이미지는 실행 시 images/ 폴더에서 선택할 수 있습니다.
 
-image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
-
-# 🎬 비디오 파라미터 설정
-# 아래 설정들을 원하는 값으로 변경하세요
+# 🎥 비디오 파라미터 설정
 
 # 해상도 (480p, 720p)
 resolution=720p
 
-# 화면비 (16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, keep_ratio)
-ratio=16:9
+# 화면비 
+# - 텍스트-to-비디오: 16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, keep_ratio
+# - 이미지-to-비디오: adaptive, keep_ratio만 지원 (다른 값 설정시 자동으로 adaptive 사용)
+ratio=9:16
 
 # 동영상 길이 (5, 10) - 초 단위
 duration=5
@@ -499,16 +712,32 @@ seed=-1
 # 카메라 고정 (true, false)
 camerafixed=false
 
-# 두 가지 모드:
-# 1. 이미지-to-비디오 (i2v): 위 image_url 사용
-# 2. 텍스트-to-비디오 (t2v): image_url 줄을 삭제하거나 # 으로 주석 처리
+# 콜백 URL (작업 완료 시 알림받을 웹훅 URL)
+# callback_url=https://your-server.com/webhook
 
-# 참고: 이미지는 인터넷에서 접근 가능한 주소여야 합니다
-# 예시: https://example.com/my-image.jpg"""
+# 🔔 콜백 URL 설정 방법:
+# 1. 웹훅을 받을 수 있는 서버나 서비스 준비
+# 2. 위 callback_url 주석을 해제하고 URL 입력
+# 3. 작업 완료 시 자동으로 POST 요청이 전송됩니다
+# 4. 콜백이 설정되면 프로그램이 바로 종료되고 알림을 기다립니다
+
+# 💡 사용법:
+# 1. images/ 폴더에 사용할 이미지 파일을 넣으세요
+# 2. 프로그램 실행 시 이미지를 선택할 수 있습니다
+# 3. 이미지 없이 텍스트만으로도 동영상 생성 가능
+
+# 📋 지원 이미지 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF
+# 📏 이미지 제한: 최대 10MB, 300px~6000px, 화면비 0.4~2.5"""
         
         with open("config.txt", "w", encoding="utf-8") as f:
             f.write(example_config)
         print("⚙️  예시 config.txt 파일을 만들었습니다.")
+    
+    # images 폴더 생성
+    if not os.path.exists("images"):
+        os.makedirs("images")
+        print("📁 images 폴더를 생성했습니다.")
+        print("💡 이 폴더에 이미지 파일을 넣으면 실행 시 선택할 수 있습니다.")
 
 
 def main():
@@ -586,7 +815,7 @@ def main():
     create_example_files()
     
     # 설정 파일들 읽기
-    print("📂 설정 파일을 읽는 중...")
+    print("📂 설정을 준비하는 중...")
     
     prompt_text = read_prompt_file()
     if not prompt_text:
@@ -594,7 +823,13 @@ def main():
         input("아무 키나 눌러서 종료하세요...")
         return
     
-    image_url, video_config = read_config_file()
+    # config.txt에서 비디오 설정 읽기
+    video_config = read_config_file()
+    
+    # 이미지 선택 (인터랙티브)
+    print()
+    print("🖼️ 이미지 선택:")
+    image_url = select_image_from_folder()
     
     print("✅ 설정 파일을 모두 읽었습니다!")
     print()
@@ -603,15 +838,26 @@ def main():
     print("📋 확인된 설정:")
     print(f"   동영상 설명: {prompt_text[:60]}{'...' if len(prompt_text) > 60 else ''}")
     if image_url:
-        print(f"   이미지 주소: {image_url[:60]}{'...' if len(image_url) > 60 else ''}")
-        print("   모드: 이미지-to-비디오 (i2v)")
+        if os.path.exists(image_url):
+            print(f"   이미지 파일: {image_url}")
+            print("   모드: 이미지-to-비디오 (i2v) - 로컬 파일")
+        else:
+            print(f"   이미지 주소: {image_url[:60]}{'...' if len(image_url) > 60 else ''}")
+            print("   모드: 이미지-to-비디오 (i2v) - URL")
     else:
         print("   모드: 텍스트-to-비디오 (t2v)")
     
     # 비디오 설정 표시
     print("   비디오 설정:")
     print(f"     해상도: {video_config['resolution']}")
-    print(f"     화면비: {video_config['ratio']}")
+    
+    # 화면비 표시 (i2v 제한사항 포함)
+    display_ratio = video_config['ratio']
+    if image_url and display_ratio not in ['adaptive', 'keep_ratio']:
+        print(f"     화면비: {display_ratio} → adaptive (i2v 모드 제한)")
+    else:
+        print(f"     화면비: {display_ratio}")
+    
     print(f"     길이: {video_config['duration']}초")
     print(f"     프레임율: {video_config['fps']}fps")
     if video_config.get('watermark'):
@@ -620,6 +866,8 @@ def main():
         print(f"     시드: {video_config['seed']}")
     if video_config.get('camerafixed'):
         print(f"     카메라 고정: 예")
+    if video_config.get('callback_url'):
+        print(f"     콜백 URL: {video_config['callback_url']}")
     print()
     
     # 사용자 확인
@@ -635,11 +883,24 @@ def main():
         result_path = video_maker.create_video(prompt_text, image_url, video_config)
         
         if result_path:
-            print()
-            print("🎊 축하합니다! 동영상 생성이 완료되었습니다!")
-            print(f"📁 저장 위치: {os.path.abspath(result_path)}")
-            print()
-            print("💡 팁: 다른 동영상을 만들려면 prompt.txt나 config.txt를 수정하고 다시 실행하세요!")
+            # 콜백 URL이 설정된 경우 task_id가 반환됨
+            if video_config.get('callback_url'):
+                print()
+                print("📞 작업이 접수되었습니다!")
+                print(f"📋 작업 ID: {result_path}")
+                print()
+                print("🔔 콜백 URL로 완료 알림이 전송됩니다.")
+                print("💡 수동 확인하려면:")
+                print(f"   python easy_video_maker.py --check {result_path}")
+                print()
+                print("🌐 웹훅 서버를 실행하려면:")
+                print("   python webhook_server.py")
+            else:
+                print()
+                print("🎊 축하합니다! 동영상 생성이 완료되었습니다!")
+                print(f"📁 저장 위치: {os.path.abspath(result_path)}")
+                print()
+                print("💡 팁: 다른 동영상을 만들려면 prompt.txt나 config.txt를 수정하고 다시 실행하세요!")
         else:
             print()
             print("😔 동영상 생성에 실패했습니다.")
