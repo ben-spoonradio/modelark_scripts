@@ -38,8 +38,11 @@ class EasyVideoMaker:
             "Authorization": f"Bearer {api_key}"
         }
     
-    def create_video(self, description: str, image_url: str = None) -> Optional[str]:
+    def create_video(self, description: str, image_url: str = None, video_config: dict = None) -> Optional[str]:
         """동영상을 만들고 파일로 저장합니다"""
+        
+        if video_config is None:
+            video_config = {}
         
         print("🎬 동영상 생성을 시작합니다...")
         print(f"📝 설명: {description[:50]}{'...' if len(description) > 50 else ''}")
@@ -47,10 +50,13 @@ class EasyVideoMaker:
             print(f"🖼️  이미지: {image_url}")
         else:
             print("📝 텍스트만으로 동영상을 생성합니다")
+        
+        # 비디오 설정 표시
+        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {video_config.get('ratio', '16:9')} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps")
         print()
         
         # 1단계: 동영상 생성 요청
-        task_id = self._start_generation(description, image_url)
+        task_id = self._start_generation(description, image_url, video_config)
         if not task_id:
             return None
         
@@ -62,22 +68,48 @@ class EasyVideoMaker:
         # 3단계: 동영상 다운로드
         return self._download_video(video_url)
     
-    def _start_generation(self, description: str, image_url: str = None) -> Optional[str]:
+    def _start_generation(self, description: str, image_url: str = None, video_config: dict = None) -> Optional[str]:
         """동영상 생성 시작"""
         url = f"{self.base_url}/api/v3/contents/generations/tasks"
+        
+        if video_config is None:
+            video_config = {}
+        
+        # 텍스트 프롬프트에 파라미터 추가
+        text_prompt = description
+        
+        # API 문서에 따른 파라미터 추가
+        params = []
+        if video_config.get('ratio'):
+            params.append(f"--ratio {video_config['ratio']}")
+        if video_config.get('resolution'):
+            params.append(f"--resolution {video_config['resolution']}")
+        if video_config.get('duration'):
+            params.append(f"--duration {video_config['duration']}")
+        if video_config.get('fps'):
+            params.append(f"--fps {video_config['fps']}")
+        if video_config.get('watermark', False):
+            params.append(f"--watermark {str(video_config['watermark']).lower()}")
+        if video_config.get('seed', -1) != -1:
+            params.append(f"--seed {video_config['seed']}")
+        if video_config.get('camerafixed', False):
+            params.append(f"--camerafixed {str(video_config['camerafixed']).lower()}")
+        
+        if params:
+            text_prompt += " " + " ".join(params)
         
         # 이미지가 있으면 i2v 모델, 없으면 t2v 모델 사용
         if image_url:
             model = "seedance-1-0-lite-i2v-250428"
             content = [
-                {"type": "text", "text": description},
+                {"type": "text", "text": text_prompt},
                 {"type": "image_url", "image_url": {"url": image_url}}
             ]
             print("🎬 이미지-to-비디오 모드로 생성합니다")
         else:
             model = "seedance-1-0-lite-t2v-250428"
             content = [
-                {"type": "text", "text": description}
+                {"type": "text", "text": text_prompt}
             ]
             print("📝 텍스트-to-비디오 모드로 생성합니다")
         
@@ -201,28 +233,57 @@ def read_prompt_file() -> str:
         return None
 
 
-def read_config_file() -> Optional[str]:
-    """config.txt 파일에서 이미지 주소 읽기 (없으면 None 반환)"""
+def read_config_file() -> tuple[Optional[str], dict]:
+    """config.txt 파일에서 설정 읽기 (이미지 URL과 비디오 파라미터)"""
+    config = {
+        'resolution': '720p',
+        'ratio': '16:9', 
+        'duration': 5,
+        'fps': 24,
+        'watermark': False,
+        'seed': -1,
+        'camerafixed': False
+    }
+    image_url = None
+    
     try:
         with open("config.txt", "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                # 주석이 아니고 image_url로 시작하는 줄 찾기
-                if line.startswith("image_url=") and not line.startswith("#"):
-                    url = line.replace("image_url=", "").strip()
-                    if url:
-                        return url
+                # 주석이 아닌 설정 줄들 처리
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip()
+                    
+                    if key == "image_url" and value:
+                        image_url = value
+                    elif key == "resolution" and value in ["480p", "720p"]:
+                        config['resolution'] = value
+                    elif key == "ratio" and value in ["16:9", "4:3", "1:1", "3:4", "9:16", "21:9", "9:21", "keep_ratio"]:
+                        config['ratio'] = value
+                    elif key == "duration" and value.isdigit() and int(value) in [5, 10]:
+                        config['duration'] = int(value)
+                    elif key == "fps" and value.isdigit() and int(value) in [16, 24]:
+                        config['fps'] = int(value)
+                    elif key == "watermark" and value.lower() in ["true", "false"]:
+                        config['watermark'] = value.lower() == "true"
+                    elif key == "seed" and (value == "-1" or (value.isdigit() and 0 <= int(value) <= 4294967295)):
+                        config['seed'] = int(value)
+                    elif key == "camerafixed" and value.lower() in ["true", "false"]:
+                        config['camerafixed'] = value.lower() == "true"
             
-        # image_url이 없거나 모두 주석 처리된 경우
-        print("ℹ️  config.txt에서 image_url을 찾을 수 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
-        return None
+        if not image_url:
+            print("ℹ️  config.txt에서 image_url을 찾을 수 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
+        
+        return image_url, config
         
     except FileNotFoundError:
-        print("ℹ️  config.txt 파일이 없습니다. 텍스트-to-비디오 모드로 실행합니다.")
-        return None
+        print("ℹ️  config.txt 파일이 없습니다. 기본 설정으로 텍스트-to-비디오 모드로 실행합니다.")
+        return None, config
     except Exception as e:
         print(f"❌ 오류: config.txt 파일 읽기 실패 - {e}")
-        return None
+        return None, config
 
 
 def create_example_files():
@@ -247,6 +308,30 @@ def create_example_files():
 # 이미지 없이 텍스트만으로 동영상을 만들려면 아래 줄을 주석 처리하거나 삭제하세요
 
 image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
+
+# 🎬 비디오 파라미터 설정
+# 아래 설정들을 원하는 값으로 변경하세요
+
+# 해상도 (480p, 720p)
+resolution=720p
+
+# 화면비 (16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, keep_ratio)
+ratio=16:9
+
+# 동영상 길이 (5, 10) - 초 단위
+duration=5
+
+# 프레임율 (16, 24) - fps
+fps=24
+
+# 워터마크 (true, false)
+watermark=false
+
+# 시드 값 (-1은 랜덤, 0~4294967295 사이의 숫자)
+seed=-1
+
+# 카메라 고정 (true, false)
+camerafixed=false
 
 # 두 가지 모드:
 # 1. 이미지-to-비디오 (i2v): 위 image_url 사용
@@ -295,7 +380,7 @@ def main():
         input("아무 키나 눌러서 종료하세요...")
         return
     
-    image_url = read_config_file()
+    image_url, video_config = read_config_file()
     
     print("✅ 설정 파일을 모두 읽었습니다!")
     print()
@@ -308,6 +393,19 @@ def main():
         print("   모드: 이미지-to-비디오 (i2v)")
     else:
         print("   모드: 텍스트-to-비디오 (t2v)")
+    
+    # 비디오 설정 표시
+    print("   비디오 설정:")
+    print(f"     해상도: {video_config['resolution']}")
+    print(f"     화면비: {video_config['ratio']}")
+    print(f"     길이: {video_config['duration']}초")
+    print(f"     프레임율: {video_config['fps']}fps")
+    if video_config.get('watermark'):
+        print(f"     워터마크: 있음")
+    if video_config.get('seed', -1) != -1:
+        print(f"     시드: {video_config['seed']}")
+    if video_config.get('camerafixed'):
+        print(f"     카메라 고정: 예")
     print()
     
     # 사용자 확인
@@ -320,7 +418,7 @@ def main():
     # 동영상 생성기 시작
     try:
         video_maker = EasyVideoMaker(api_key)
-        result_path = video_maker.create_video(prompt_text, image_url)
+        result_path = video_maker.create_video(prompt_text, image_url, video_config)
         
         if result_path:
             print()

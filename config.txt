@@ -3,6 +3,15 @@
 
 # image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
 
+resolution=720p
+# ratio=16:9
+ratio=9:16
+duration=5
+fps=24
+watermark=false
+seed=-1
+camerafixed=false
+
 # 참고사항:
 # - 이미지는 인터넷에서 접근 가능한 주소여야 합니다
 # - 지원되는 이미지 형식: JPG, PNG, GIF, WebP
