@@ -236,7 +236,7 @@ videos/
 ## 🎬 지금 바로 시작하세요!
 
 ```bash
-git clone [repo-url]
+git clone https://github.com/ben-spoonradio/modelark_scripts.git
 cd modelark_scripts  
 ./run.sh
 ```
