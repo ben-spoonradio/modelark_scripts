@@ -629,7 +629,12 @@ class EasyVideoMaker:
                 if not base64_image:
                     return None
                 
-                final_image_url = base64_image
+                # MIME 타입 확인하여 data URL 형식으로 변환
+                mime_type, _ = mimetypes.guess_type(image_url)
+                if not mime_type:
+                    mime_type = "image/jpeg"  # 기본값
+                
+                final_image_url = f"data:{mime_type};base64,{base64_image}"
                 print("🔄 로컬 이미지를 Base64로 변환하여 사용합니다")
             else:
                 final_image_url = image_url
