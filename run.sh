@@ -37,10 +37,23 @@ if ! python -c "import PIL" &> /dev/null; then
     python -m pip install Pillow
 fi
 
+# Python 패키지 업그레이드
+echo "📦 pip 업그레이드 중..."
+python -m pip install --upgrade pip
+
 # OpenCV (동영상 처리) 모듈 확인
 if ! python -c "import cv2" &> /dev/null; then
     echo "🎥 OpenCV 모듈 설치 중..."
-    python -m pip install opencv-python
+    python -m pip install opencv-python opencv-python-headless
+fi
+
+# 추가 필수 모듈들 확인
+echo "📦 추가 필수 모듈들을 확인하는 중..."
+
+# numpy 모듈 확인 (OpenCV 의존성)
+if ! python -c "import numpy" &> /dev/null; then
+    echo "🔢 numpy 모듈 설치 중..."
+    python -m pip install numpy
 fi
 
 # API 키 확인
