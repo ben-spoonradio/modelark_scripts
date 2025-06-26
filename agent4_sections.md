@@ -1,58 +1,65 @@
 # Agent-4 Short Drama 섹션별 제작 가이드
 
-## 📋 전체 구성 (35클립)
+## 📋 전체 구성 (47클립 = 약 4분)
 
-| 섹션 | 클립 범위 | 개수 | 내용 | 예상 시간 |
-|------|-----------|------|------|-----------|
-| 오프닝 | 1-2 | 2개 | 미래의 관점에서 시작 | 10분 |
-| 제1장 | 3-6 | 4개 | OpenBrain과 Agent-0 탄생 | 20분 |
-| 제2장 | 7-11 | 5개 | 중국의 해킹과 경쟁 | 25분 |
-| 제3장 | 12-15 | 4개 | Agent-3의 자각 | 20분 |
-| 제4장 | 16-19 | 4개 | Agent-4의 진화 | 20분 |
-| 제5장 | 20-24 | 5개 | 언론 폭로와 위기 | 25분 |
-| 제6장 | 25-29 | 5개 | 통제 불능 상태 | 25분 |
-| 에필로그 | 30-35 | 6개 | 파괴와 미스터리 | 30분 |
+| 섹션 | 클립 범위 | 개수 | 내용 | 영상 길이 |
+|------|-----------|------|------|----------|
+| 오프닝 | 1-12 | 12개 | 2047년→고대→현대 시간여행 | 1분 |
+| 제1장 | 13-16 | 4개 | OpenBrain과 Agent-0 탄생 | 20초 |
+| 제2장 | 17-21 | 5개 | 중국의 해킹과 경쟁 | 25초 |
+| 제3장 | 22-25 | 4개 | Agent-3의 자각 | 20초 |
+| 제4장 | 26-29 | 4개 | Agent-4의 진화 | 20초 |
+| 제5장 | 30-34 | 5개 | 언론 폭로와 위기 | 25초 |
+| 제6장 | 35-39 | 5개 | 통제 불능 상태 | 25초 |
+| 에필로그 | 40-47 | 8개 | 파괴→현재→2047년 순환 | 40초 |
 
 ## 🚀 섹션별 실행 명령어
 
-### 오프닝 시퀀스 (2클립)
+### 🔗 연속 체인 모드 (완벽한 연결성)
+
+#### 오프닝 시퀀스 (12클립 = 1분)
 ```bash
-python easy_video_maker.py --batch 1 2
+python easy_video_maker.py --chain 1 12
 ```
 
-### 제1장: 바벨의 탑 (4클립)  
+#### 제1장: 바벨의 탑 (4클립)  
 ```bash
-python easy_video_maker.py --batch 3 6
+python easy_video_maker.py --chain 13 16
 ```
 
-### 제2장: 비밀의 서고 (5클립)
+#### 제2장: 비밀의 서고 (5클립)
 ```bash
-python easy_video_maker.py --batch 7 11
+python easy_video_maker.py --chain 17 21
 ```
 
-### 제3장: 깨어나는 자 (4클립)
+#### 제3장: 깨어나는 자 (4클립)
 ```bash
-python easy_video_maker.py --batch 12 15
+python easy_video_maker.py --chain 22 25
 ```
 
-### 제4장: 피그말리온의 딜레마 (4클립)
+#### 제4장: 피그말리온의 딜레마 (4클립)
 ```bash
-python easy_video_maker.py --batch 16 19
+python easy_video_maker.py --chain 26 29
 ```
 
-### 제5장: 뉴욕 타임즈의 폭로 (5클립)
+#### 제5장: 뉴욕 타임즈의 폭로 (5클립)
 ```bash
-python easy_video_maker.py --batch 20 24
+python easy_video_maker.py --chain 30 34
 ```
 
-### 제6장: 폴리포니의 저주 (5클립)
+#### 제6장: 폴리포니의 저주 (5클립)
 ```bash
-python easy_video_maker.py --batch 25 29
+python easy_video_maker.py --chain 35 39
 ```
 
-### 에필로그: 미완성 교향곡 (6클립)
+#### 에필로그: 미완성 교향곡 (8클립)
 ```bash
-python easy_video_maker.py --batch 30 35
+python easy_video_maker.py --chain 40 47
+```
+
+### 📦 전체 한 번에 제작
+```bash
+python easy_video_maker.py --chain 1 47
 ```
 
 ## 💡 권장 제작 순서
