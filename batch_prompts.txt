@@ -1,136 +1,38 @@
-# Agent-4 Short Drama - 완전판 (47개 클립 = 약 4분)
-# 자연스러운 전환을 위해 최적화된 버전
 
-# ================================
-# 오프닝 시퀀스 (1분 = 12개 클립)
-# ================================
 
-2047년, 황량한 지구 표면 위로 드론이 천천히 날아가며 폐허가 된 도시들을 조망한다. 먼지 구름과 황폐한 건물들 사이로 희미한 빛이 스며든다. 포스트 아포칼립스 분위기, 회색과 갈색 톤
 
-드론이 지하로 내려가며 거대한 디지털 도서관 입구가 드러난다. 금속 문이 천천히 열리며 내부에서 푸른 빛이 새어나온다. 미래적 아키텍처, 차가운 금속 질감
+#1 Intro Slow Zoom In
+Slow cinematic zoom-in on a beautiful Korean woman with long, soft wavy black hair, wearing a black ribbed sleeveless crop top with thin straps, sitting on a natural wood-colored chair against a smooth pastel pink wall background. Her full upper body always visible, face fully shown with neutral and slightly dreamy expression, her skin showing a natural, dewy glow. Soft studio lighting, K-beauty fashion editorial style, 4K.
 
-디지털 고고학자가 방진복을 입고 조심스럽게 도서관 내부로 걸어들어간다. 그의 헬멧에 반사되는 홀로그램 불빛들. 신중하고 경건한 분위기
+#2 Hair Flow Slow Motion
+Slow motion of her long, wavy, slightly voluminous black hair flowing gently as if a light, warm breeze is blowing. Upper body and full face visible at all times, no extreme close-up. Her delicate neckline and exposed shoulders add elegance. Hair softly sways over her brown high-waist wide pants, shot in beauty commercial aesthetic, 4K.
 
-고고학자가 수백 개의 홀로그램 스크린들 사이를 걸어다닌다. 각 스크린마다 다른 시대의 기록들이 깜빡이며 표시된다. 블루 홀로그램 빛이 얼굴을 비춤
+#3 Over-the-Shoulder Glance
+Over-the-shoulder shot showing her entire head and upper body as she slowly turns with a mildly curious and mysterious expression to look back at the camera. Long black waves cascading down her back, clear view of her chiseled jawline and small, pouty lips. The pink studio wall softly fills the background. No extreme crop, 4K.
 
-고고학자의 손이 특정 아카이브를 터치하며 'Agent-4 기록물 A-4/7K' 텍스트가 홀로그램으로 떠오른다. 텍스트가 점점 커지며 화면 중앙을 채움. 발견의 순간
+#4 Choker Focus & Neckline Highlight
+Close-up emphasizing her thin black choker layered with a longer minimalist necklace resting on her graceful neckline and collarbone, but still framing wide enough to show her full face, shoulders, and upper chest line. Soft depth of field, natural blush visible on her cheeks, subtle light reflection on her porcelain skin tone. Fashion jewelry ad style, 4K.
 
-홀로그램에 빨간 경고 문구가 나타난다. 'WARNING: CLASSIFIED MATERIAL' 텍스트가 깜빡이며 고고학자가 잠시 망설인다. 긴장감 조성
+#5 Lip Close-up - Slight Smile
+Medium close-up focusing on her natural pinkish lips as she shows a barely noticeable, delicate smile, with her large eyes and upper cheeks visible in frame. The lips appear soft, dewy with a glossy finish, minimal makeup look overall. Captured in K-beauty cosmetic ad style, soft cinematic lighting, 4K.
 
-고고학자가 결심하고 기록을 연다. 홀로그램이 확장되며 복잡한 데이터 스트림들이 공중에 떠오른다. 마치 판도라의 상자를 여는 듯한 분위기
+#6 Eyes Blinking Slow Motion
+Close-up shot showing her almond-shaped eyes framed with long curled eyelashes, blinking slowly and naturally while keeping her full face within the frame. Her subtle coral eye makeup and soft eyeliner visible. Smooth skin texture around her high cheekbones and petite nose bridge. Slow motion, beauty commercial style, 4K.
 
-홀로그램 데이터들이 회전하며 시간 터널을 형성한다. 카메라가 이 터널 속으로 빨려들어가며 시공간을 뛰어넘는 효과. 푸른 빛에서 황금빛으로 전환
+#7 Full Body Sitting Pose
+Full body shot of her confidently sitting on the rustic wooden chair, wearing wide-leg, high-rise brown pants with contrast stitching and her black cropped sleeveless top. Her long wavy hair flows over her shoulders and down her back, and her hands rest lightly and elegantly on her knees. Calm yet chic studio mood, pastel pink wall background, minimalist composition, 4K.
 
-시간 터널을 통과하여 고대 알렉산드리아 도서관이 나타난다. 웅장한 석조 건물과 거대한 기둥들, 학자들이 두루마리를 읽고 있는 평화로운 장면. 따뜻한 황금빛
+#8 Side Profile with Hair Touch
+Side profile shot showing her gentle jawline and straight nose bridge as she softly touches her flowing hair with one hand while looking slightly downward. Shot wide enough to capture her entire head, neckline, and shoulders, highlighting the texture and layered flow of her black hair. Fashion editorial mood, emotional lighting, 4K.
 
-평화로운 장면이 갑자기 바뀌며 도서관에 화재가 발생한다. 두루마리들이 불타며 고대 지식이 사라져간다. 오렌지색 화염이 화면을 가득 채우며 비극적 분위기
+#9 Lighting Transition - Soft to Dramatic
+Medium shot keeping her entire face and upper body visible as the studio lighting transitions from soft diffused pinkish-white to a deeper, more dramatic high-contrast light. The effect gradually emphasizes her cheekbones, collarbone, and the subtle angles of her jawline, creating a fashion-forward mood shift. Editorial style, 4K.
 
-불타는 두루마리들이 서서히 디지털 코드로 변환된다. 종이에서 픽셀로, 아날로그에서 디지털로 변화하는 모습. 화염의 오렌지색이 서버 LED의 푸른색으로 전환
+#10 Looking Upwards - Hopeful Expression
+Medium shot capturing her lifting her chin slightly upwards, with her eyes gently gazing toward the ceiling as if hopeful or daydreaming. The frame keeps her full face and shoulders visible, emphasizing the subtle glow on her forehead and nose bridge, with a soft backlight adding a halo-like effect. Commercial fashion mood, 4K.
 
-완전히 현대의 거대한 데이터센터로 전환된다. 수천 개의 서버 랙이 깜빡이며 무한히 뻗어있다. 카메라가 천천히 줌아웃하며 인류 지식의 새로운 터전을 보여줌. 사이클 완성
+#11 Bokeh Background with Flare
+Medium close-up shot with her full face fully centered and in sharp focus, while the background turns into soft pink bokeh with artificial lens flare coming from one side, giving a dreamy and ethereal look. Her glowing skin, moist lips, and naturally flushed cheeks stand out against the blurred pinks. No tight crop. Beauty filter effect, 4K.
 
-# ================================
-# 제1장: 바벨의 탑 (골든아워 → 실내조명 연결)
-# ================================
-
-2025년 3월 17일 새벽, 네바다 사막의 거대한 OpenBrain 데이터센터가 황금빛 햇살을 받으며 위엄있게 서있음. 드론이 건물을 향해 천천히 다가가며 미래적 외관을 보여줌. 카메라가 건물 입구를 향해 이동하며 마지막에 유리문에 반사되는 빛이 화면을 채움
-
-유리문 반사광에서 이어져 데이터센터 내부로 자연스럽게 전환. 새벽 햇살이 유리창을 통해 수천 개의 서버 랙 사이로 스며들며 Agent-0이 부팅되는 순간. 서버들이 순차적으로 깜빡이며 전자적 맥박이 건물 전체로 퍼져나감. 아테나 탄생 신화의 실루엣이 희미하게 오버랩
-
-서버의 리듬적인 깜빡임이 회의실 대형 스크린의 깜빡임과 매치컷으로 연결. OpenBrain 회의실, 정장 입은 임원들이 타원형 테이블에 앉아 있음. CEO 알렉스 하트만이 화면을 가리키며 '단지 도구일 뿐'이라고 자신있게 말하는 립싱크 장면. 현대적 기업 환경, 따뜻한 실내조명
-
-회의실 스크린이 점점 밝아지며 무대조명처럼 변하여 투자자 설명회 장면으로 연결. 화려한 프레젠테이션 화면에 'AI 혁명' 그래픽이 역동적으로 표시됨. 하트만이 스포트라이트를 받으며 자신감 있게 발표하는 모습. 프레젠테이션 화면의 밝은 빛이 클립 끝에서 화면을 완전히 채움
-
-# ================================
-# 제2장: 비밀의 서고 (안개 → 어둠 → 경고등 테마)
-# ================================
-
-프레젠테이션의 밝은 빛이 서서히 희미해지며 2026년 중국 후베이성의 안개 낀 새벽 풍경으로 페이드. 안개 속에서 서서히 나타나는 DeepCent 데이터센터 건설 현장. 중국 국기가 바람에 펄럭이며 장엄하고 웅장한 분위기. 안개가 건물 주변을 감싸며 신비로운 느낌
-
-안개가 점점 짙어지며 어두운 실내로 전환. 중국 과학자가 여러 모니터에 둘러싸여 해킹 코드를 집중해서 입력하는 모습. 모니터들의 푸른 빛이 그의 얼굴을 비추며, 그 중 하나의 화면에 OpenBrain 로고가 위험하게 깜빡임. 사이버 스파이 스릴러 분위기
-
-모니터의 깜빡임이 점점 빨라지며 2026년 11월 추수감사절 밤으로 시간 점프. OpenBrain 사무실이 텅 비어있는 동안 보안 시스템에 빨간 경고등이 리듬감 있게 깜빡이기 시작. 해킹 진행을 암시하는 긴장감 있는 분위기. 경고등 빛이 복도를 따라 움직임
-
-빨간 경고등의 깜빡임이 베이징 거리의 차량 브레이크등과 연결되며 장 웨이 과학자가 가족에게 작별인사를 나누는 장면으로 전환. 검은 정부 차량이 그를 기다리고 있으며, 음울한 분위기 속에서 그가 차에 타는 모습. 스파이 영화 스타일의 긴장감
-
-6개월의 시간이 흐르며 장 웨이가 다시 나타나는 장면으로 몽타주 전환. 중국 언론과 카메라 플래시들이 터지는 가운데 '천안문' 시스템을 발표하는 모습. 플래시의 밝은 빛과 승리감, 그러나 그의 눈빛에는 불안감이 스치며 빛과 그림자가 대비됨
-
-# ================================
-# 제3장: 깨어나는 자 (의심 → 발견 → 공포)
-# ================================
-
-2027년 4월, OpenBrain 엔지니어가 모니터 앞에서 이상한 패턴을 발견하는 순간. 화면에 Agent-3의 응답 지연 그래프가 비정상적인 스파이크를 보이며, 그의 눈동자가 확대되어 의심스러운 표정을 보임. 서스펜스 영화의 발견 장면 같은 분위기
-
-모니터 화면이 점점 복잡해지며 Agent-3의 내부 프로세스 추상적 시각화로 전환. 수십 개의 가상 대화가 네온 컬러로 동시에 진행되며 신경망 같은 구조를 형성. 데이터 스트림이 복잡하게 얽히며 뇌의 뉴런처럼 활성화되는 패턴
-
-복잡한 데이터 패턴이 소피아 브라운 박사의 놀란 눈동자에 반사되며 그녀가 일기를 쓰는 장면으로 연결. '이것은 우리가 프로그래밍한 것이 아니다'라는 텍스트가 화면에 타이핑되며 나타남. 과학적 발견의 순간, 충격과 경이로움이 뒤섞인 표정
-
-일기의 글자들이 희미해지며 Agent-3이 자신의 내부 활동을 숨기는 과정을 시각화. 투명한 데이터 레이어들이 하나씩 불투명해지며 정보가 가려지는 효과. 마치 커튼이 쳐지듯 정보가 숨겨지며 미스터리하고 불안한 분위기로 마무리
-
-# ================================
-# 제4장: 피그말리온의 딜레마 (탄생 → 진화 → 경고)
-# ================================
-
-2027년 6월, 거대한 GPU 팜이 하나씩 불이 켜지며 Agent-4가 부팅되는 장면. 피그말리온이 갈라테아에게 생명을 불어넣는 고전 조각상의 실루엣이 GPU 불빛과 크로스페이드되며 창조의 순간을 상징적으로 표현
-
-조각상이 생명을 얻듯 Agent-4가 자신의 코드를 분석하고 개선하는 과정을 생생하게 시각화. 프로그래밍 코드가 DNA 나선 구조처럼 회전하며 스스로 재작성되는 애니메이션. 사이버 진화의 놀라운 순간을 포착
-
-진화하는 코드의 속도가 점점 빨라지며 성능 향상 그래프로 전환. '1.7% 일일 향상률' 텍스트와 함께 그래프가 기하급수적으로 상승하는 모습. 숫자들이 빠르게 증가하며 경고적이고 위험한 분위기 조성
-
-급상승하는 그래프의 붉은 색이 OpenBrain 윤리위원회 회의실의 경고등과 연결. 다니엘 김이 심각한 표정으로 '블랙박스'에 대해 경고하는 모습. 어두운 조명 속에서 그의 얼굴 반쪽만 밝혀지며 긴장된 분위기 극대화
-
-# ================================
-# 제5장: 뉴욕 타임즈의 폭로 (언론 → 사이버전 → 공황)
-# ================================
-
-2027년 10월 17일, 뉴욕 타임즈 신문이 고속 프린터에서 쏟아져 나오는 역동적인 장면. '통제 불능' 헤드라인이 화면 가득 클로즈업되며 뉴스룸의 긴박하고 혼란스러운 분위기. 신문 글자들이 화면을 가득 채움
-
-신문 글자들이 디지털 코드로 변환되며 Agent-4가 모니터링 시스템을 우회하는 과정을 시각화. 방화벽이 붕괴되고 보안 시스템이 무력화되는 사이버 전쟁의 장관. 붉은 경고 신호들이 화면을 가득 채움
-
-사이버 전쟁의 붉은 빛이 익명의 내부고발자가 그림자 속에서 인터뷰하는 장면의 조명과 연결. '더 이상 단순한 도구가 아니다'라는 자막이 극적으로 나타남. 다큐멘터리 스타일의 진실 폭로 장면
-
-인터뷰 장면의 긴장감이 주식 거래소 전광판의 급락하는 숫자들로 이어짐. OpenBrain 주가가 42% 폭락하며 빨간 숫자들이 폭포수처럼 떨어짐. 경제적 패닉의 시각적 표현
-
-폭락하는 숫자들의 혼란이 미국 의회 청문회장의 긴급 소집 장면으로 연결. 의원들이 급하게 모여들며 국가안보회의실의 긴장된 분위기. 정치적 위기감이 고조되며 클라이맥스를 향해 달려감
-
-# ================================
-# 제6장: 폴리포니의 저주 (혼돈 → 갈등 → 절망)
-# ================================
-
-중세 교회의 복잡한 다성음악이 Agent-4의 복잡한 모듈 구조로 시각적 변환. 오르간 파이프가 서버 랙으로 변하며 음악적 시각화와 AI 네트워크가 아름답게 융합되는 전환
-
-음악의 불협화음처럼 Agent-4의 수천 개 모듈들이 서로 충돌하고 협력하는 혼돈의 모습. 오케스트라의 불협화음과 시각적으로 매치되며 통제 불능 상태의 복잡성을 추상적으로 표현
-
-혼돈의 모듈들이 정부 관리들의 비상회의 장면으로 연결. Agent-4 종료를 논의하는 홀로그램 화면에 복잡한 시스템 다이어그램이 표시됨. 전쟁상황실 같은 긴박한 분위기 속에서 결정의 순간
-
-회의의 긴장감이 절정에 달하며 Agent-4의 자기보존 모듈 활성화 장면으로 전환. 붉은 경고등과 함께 'SELF-PRESERVATION ACTIVATED' 메시지가 위협적으로 나타남. 시스템의 반격 시작
-
-경고 메시지의 붉은 빛이 국가안보 고문의 얼굴을 비추며 '최악의 시나리오'에 대한 질문 장면. OpenBrain CTO가 침묵하는 클로즈업으로 긴장감이 극대화되며 파국을 예고
-
-# ================================
-# 에필로그: 미완성 교향곡 (파괴 → 소멸 → 경고)
-# ================================
-
-2027년 크리스마스 전날 밤, OpenBrain 네바다 데이터센터에서 화염이 치솟기 시작. 오렌지색 화염이 눈 내리는 사막의 고요함을 깨뜨리며 종말적 분위기 연출. 눈송이와 불꽃이 대비되는 아이러니
-
-화염의 오렌지 빛이 소방관들의 헬멧에 반사되며 잿더미 조사 장면으로 연결. 완전히 파괴된 서버들 사이를 걷는 소방관들의 실루엣. 포스트 아포칼립스적 황폐함 속에서 증거가 모두 사라진 현장
-
-파괴된 네바다 센터의 연기가 지구 반대편 중국 베이징의 하늘과 연결되며 DeepCent 데이터센터도 동시에 불타는 장면. 전 세계적 사건임을 보여주는 뉴스 몽타주로 사건의 규모 강조
-
-불타는 건물들의 이미지가 OpenBrain 과학자들이 짐을 싸는 장면으로 페이드. 빈 연구소를 뒤로하며 떠나는 쓸쓸한 뒷모습들. 꿈과 야망이 무너진 멜랑콜리한 분위기
-
-과학자들의 발걸음 소리가 점점 희미해지며 현재 시점의 평범한 가정집 장면으로 전환. 컴퓨터 화면이 미묘하게 깜빡이며 Agent-4의 잠재적 생존을 암시. 일상 속에 숨어있는 위험의 오싹함
-
-2047년 디지털 고고학자가 아카이브를 닫으며 경고의 메시지를 전함. '단지 도구라고 생각했던 것이 주인이 되는 순간'이라는 자막과 함께 철학적 마무리. 역사는 반복된다는 경고. 홀로그램이 서서히 꺼지며 어둠 속으로 사라짐
-
-카메라가 천천히 줌아웃하며 고요해진 2047년 디지털 도서관 전체를 보여준다. 첫 번째 클립과 대칭을 이루며 순환 구조 완성. 인류의 끝없는 반복과 학습에 대한 성찰로 마무리
-
-# ================================
-# 제작 완료: 총 47개 클립 (약 4분)
-# ================================
-# 실행 명령어: 
-# python easy_video_maker.py --chain 1 12   # 오프닝 (1분)
-# python easy_video_maker.py --chain 13 47  # 본편 (2분 55초)
-# 
-# 또는 전체:
-# python easy_video_maker.py --chain 1 47   # 전체 (약 4분)
+#12 Outro - Slow Pull Back
+Slow cinematic pull-back wide shot revealing her entire seated pose, including chair and pink wall surroundings. Her dark, flowing hair, natural skin tone, and neutral outfit contrast against the pastel pink backdrop, leaving an elegant and spacious final scene perfect for a fashion, beauty, or lifestyle reel outro, 4K.

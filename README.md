@@ -204,7 +204,7 @@ fps=24
 
 #### 📺 **유튜브용**
 ```ini
-resolution=720p
+resolution=1080p
 ratio=16:9
 duration=10
 fps=24
@@ -212,14 +212,11 @@ fps=24
 
 #### 📷 **인스타그램 피드용**
 ```ini
-resolution=720p
+resolution=1080p
 ratio=1:1
 duration=5
 fps=24
 ```
-
-### 📖 더 자세한 설정 옵션
-지원되는 모든 속성과 옵션에 대한 자세한 정보는 [BytePlus ModelArk 공식 문서](https://docs.byteplus.com/en/docs/ModelArk/1520757)에서 확인하실 수 있습니다.
 
 ## 🛠️ 기술적 특징
 

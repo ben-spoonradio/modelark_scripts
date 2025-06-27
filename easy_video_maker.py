@@ -267,7 +267,7 @@ class EasyVideoMaker:
                 print(f"🔧 이미지 크기 조정: {new_width}x{new_height}")
             
             # 파일 크기 최적화를 위해 더 낮은 품질로 저장
-            pil_image.save(output_path, "JPEG", quality=70, optimize=True)
+            pil_image.save(output_path, "JPEG", quality=60, optimize=True)
             
             cap.release()
             
@@ -448,10 +448,10 @@ class EasyVideoMaker:
                 print(f"❌ 이미지 파일을 찾을 수 없습니다: {image_path}")
                 return None
             
-            # 파일 크기 확인 (10MB 제한)
+            # 파일 크기 확인 (5MB 제한)
             file_size = os.path.getsize(image_path)
-            if file_size > 10 * 1024 * 1024:
-                print(f"❌ 이미지 파일이 너무 큽니다: {file_size / (1024*1024):.1f}MB (최대 10MB)")
+            if file_size > 5 * 1024 * 1024:
+                print(f"❌ 이미지 파일이 너무 큽니다: {file_size / (1024*1024):.1f}MB (최대 5MB)")
                 return None
             
             # MIME 타입 확인
@@ -470,15 +470,40 @@ class EasyVideoMaker:
             
             print(f"📸 이미지를 Base64로 인코딩하는 중... ({file_size / 1024:.1f}KB)")
             
-            # 파일 읽기 및 Base64 인코딩
-            with open(image_path, 'rb') as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            # 이미지 최적화 (크기 줄이기)
+            from PIL import Image
+            with Image.open(image_path) as img:
+                # 이미지 크기를 최대 1024x1024로 제한
+                max_size = 1024
+                if img.width > max_size or img.height > max_size:
+                    ratio = min(max_size / img.width, max_size / img.height)
+                    new_width = int(img.width * ratio)
+                    new_height = int(img.height * ratio)
+                    img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                    print(f"🔧 Base64용 이미지 크기 조정: {new_width}x{new_height}")
+                
+                # RGB로 변환 (RGBA인 경우)
+                if img.mode in ('RGBA', 'LA'):
+                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                    img = background
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # 메모리에서 JPEG로 압축
+                import io
+                img_buffer = io.BytesIO()
+                img.save(img_buffer, format='JPEG', quality=75, optimize=True)
+                img_buffer.seek(0)
+                
+                # Base64 인코딩
+                encoded_string = base64.b64encode(img_buffer.read()).decode('utf-8')
             
             # Base64 크기 확인 (API 제한 확인을 위해)
             base64_size_mb = len(encoded_string) / (1024 * 1024)
             print(f"✅ Base64 인코딩 완료! (크기: {base64_size_mb:.2f}MB)")
             
-            if base64_size_mb > 15:  # Base64 크기 제한
+            if base64_size_mb > 8:  # Base64 크기 제한
                 print("⚠️  Base64 데이터가 너무 큽니다. 이미지를 더 작게 만들어보세요.")
                 return None
             
@@ -631,8 +656,23 @@ class EasyVideoMaker:
                 
                 # MIME 타입 확인하여 data URL 형식으로 변환
                 mime_type, _ = mimetypes.guess_type(image_url)
-                if not mime_type:
-                    mime_type = "image/jpeg"  # 기본값
+                if not mime_type or not mime_type.startswith('image/'):
+                    # 파일 확장자로 MIME 타입 결정
+                    ext = os.path.splitext(image_url.lower())[1]
+                    if ext in ['.jpg', '.jpeg']:
+                        mime_type = "image/jpeg"
+                    elif ext == '.png':
+                        mime_type = "image/png"
+                    elif ext == '.webp':
+                        mime_type = "image/webp"
+                    elif ext == '.gif':
+                        mime_type = "image/gif"
+                    elif ext == '.bmp':
+                        mime_type = "image/bmp"
+                    elif ext in ['.tiff', '.tif']:
+                        mime_type = "image/tiff"
+                    else:
+                        mime_type = "image/jpeg"  # 기본값
                 
                 final_image_url = f"data:{mime_type};base64,{base64_image}"
                 print("🔄 로컬 이미지를 Base64로 변환하여 사용합니다")
@@ -931,7 +971,8 @@ def read_config_file() -> dict:
         'watermark': False,
         'seed': -1,
         'camerafixed': False,
-        'callback_url': None
+        'callback_url': None,
+        'image_file': None
     }
     try:
         with open("config.txt", "r", encoding="utf-8") as f:
@@ -959,6 +1000,8 @@ def read_config_file() -> dict:
                         config['camerafixed'] = value.lower() == "true"
                     elif key == "callback_url" and value.startswith("http"):
                         config['callback_url'] = value
+                    elif key == "image_file" and value:
+                        config['image_file'] = value
         
         return config
         
@@ -1156,8 +1199,18 @@ def main():
             video_config = read_config_file()
             
             # 첫 번째 클립용 초기 이미지 선택
-            initial_image_path = select_image_from_folder()
+            initial_image_path = None
             initial_image_url = None
+            
+            if video_config.get('image_file'):
+                initial_image_path = video_config['image_file']
+                print(f"🖼️ 설정된 초기 이미지: {initial_image_path}")
+                if not os.path.exists(initial_image_path):
+                    print(f"❌ 오류: 이미지 파일을 찾을 수 없습니다: {initial_image_path}")
+                    print("💡 텍스트 전용으로 진행합니다")
+                    initial_image_path = None
+            else:
+                initial_image_path = select_image_from_folder()
             
             if initial_image_path:
                 encoded_image = video_maker.encode_image_to_base64(initial_image_path)
@@ -1312,10 +1365,19 @@ def main():
     # config.txt에서 비디오 설정 읽기
     video_config = read_config_file()
     
-    # 이미지 선택 (인터랙티브)
+    # 이미지 선택 (config 파일 우선, 없으면 인터랙티브)
     print()
-    print("🖼️ 이미지 선택:")
-    image_url = select_image_from_folder()
+    if video_config.get('image_file'):
+        image_url = video_config['image_file']
+        print(f"🖼️ 설정된 이미지 파일: {image_url}")
+        if not os.path.exists(image_url):
+            print(f"❌ 오류: 이미지 파일을 찾을 수 없습니다: {image_url}")
+            print("💡 config.txt의 image_file 경로를 확인하거나 파일을 생성하세요")
+            input("아무 키나 눌러서 종료하세요...")
+            return
+    else:
+        print("🖼️ 이미지 선택:")
+        image_url = select_image_from_folder()
     
     print("✅ 설정 파일을 모두 읽었습니다!")
     print()
