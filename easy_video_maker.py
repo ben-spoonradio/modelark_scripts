@@ -465,10 +465,14 @@ class EasyVideoMaker:
             supported_formats = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/gif']
             if mime_type not in supported_formats:
                 print(f"❌ 지원되지 않는 이미지 형식입니다: {mime_type}")
-                print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF")
+                print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF (모든 형식은 JPEG로 변환됩니다)")
                 return None
             
             print(f"📸 이미지를 Base64로 인코딩하는 중... ({file_size / 1024:.1f}KB)")
+            
+            # PNG나 다른 형식인 경우 JPEG 변환 알림
+            if mime_type != 'image/jpeg':
+                print(f"🔄 {mime_type.split('/')[-1].upper()} → JPEG 형식으로 변환합니다")
             
             # 이미지 최적화 (크기 줄이기)
             from PIL import Image
@@ -567,10 +571,12 @@ class EasyVideoMaker:
         
         # 비디오 설정 표시
         display_ratio = video_config.get('ratio', '16:9')
+        model_type = "Pro" if video_config.get('use_pro_model', False) else "Lite"
+        
         if image_url and display_ratio not in ['adaptive', 'keep_ratio']:
             display_ratio = f"{display_ratio} → adaptive (i2v 제한)"
         
-        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {display_ratio} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps")
+        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {display_ratio} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps | {model_type}")
         print()
         
         # 1단계: 동영상 생성 요청
@@ -605,16 +611,26 @@ class EasyVideoMaker:
         # 텍스트 프롬프트에 파라미터 추가
         text_prompt = description
         
+        # Pro 모델 사용 여부 확인
+        use_pro_model = video_config.get('use_pro_model', False)
+        
+        # 1080p 사용 시 Pro 모델 필요 경고
+        if video_config.get('resolution') == '1080p' and not use_pro_model:
+            print("⚠️  경고: 1080p 해상도는 Pro 모델에서만 지원됩니다. Pro 모델을 사용하려면 config.txt에서 use_pro_model=true로 설정하세요.")
+            print("📝 720p로 변경하여 진행합니다.")
+            video_config['resolution'] = '720p'
+        
         # API 문서에 따른 파라미터 추가
         params = []
         
         # 이미지가 있는 경우 (i2v)와 없는 경우 (t2v)에 따라 파라미터 제한
         if image_url:
-            # i2v 모델에서는 ratio가 adaptive만 지원
-            if video_config.get('ratio') and video_config['ratio'] != 'keep_ratio':
-                params.append("--ratio adaptive")
-            elif video_config.get('ratio') == 'keep_ratio':
+            # i2v 모델에서는 Pro 모델도 adaptive만 지원 (API 오류 메시지 기준)
+            if video_config.get('ratio') == 'keep_ratio':
                 params.append("--ratio keep_ratio")
+            else:
+                # Pro 모델과 Lite 모델 모두 i2v에서는 adaptive만 지원
+                params.append("--ratio adaptive")
         else:
             # t2v 모델에서는 모든 ratio 지원
             if video_config.get('ratio'):
@@ -636,9 +652,13 @@ class EasyVideoMaker:
         if params:
             text_prompt += " " + " ".join(params)
         
-        # 이미지가 있으면 i2v 모델, 없으면 t2v 모델 사용
+        # 모델 선택 - pro 모델 선택시 seedance-1-0-pro-250528 사용
+        
         if image_url:
-            model = "seedance-1-0-lite-i2v-250428"
+            if use_pro_model:
+                model = "seedance-1-0-pro-250528"
+            else:
+                model = "seedance-1-0-lite-i2v-250428"
             
             # 로컬 파일인지 URL인지 확인
             if os.path.exists(image_url):
@@ -654,27 +674,8 @@ class EasyVideoMaker:
                 if not base64_image:
                     return None
                 
-                # MIME 타입 확인하여 data URL 형식으로 변환
-                mime_type, _ = mimetypes.guess_type(image_url)
-                if not mime_type or not mime_type.startswith('image/'):
-                    # 파일 확장자로 MIME 타입 결정
-                    ext = os.path.splitext(image_url.lower())[1]
-                    if ext in ['.jpg', '.jpeg']:
-                        mime_type = "image/jpeg"
-                    elif ext == '.png':
-                        mime_type = "image/png"
-                    elif ext == '.webp':
-                        mime_type = "image/webp"
-                    elif ext == '.gif':
-                        mime_type = "image/gif"
-                    elif ext == '.bmp':
-                        mime_type = "image/bmp"
-                    elif ext in ['.tiff', '.tif']:
-                        mime_type = "image/tiff"
-                    else:
-                        mime_type = "image/jpeg"  # 기본값
-                
-                final_image_url = f"data:{mime_type};base64,{base64_image}"
+                # Pro 모델은 JPEG만 지원하므로 항상 JPEG로 변환
+                final_image_url = f"data:image/jpeg;base64,{base64_image}"
                 print("🔄 로컬 이미지를 Base64로 변환하여 사용합니다")
             else:
                 final_image_url = image_url
@@ -684,13 +685,25 @@ class EasyVideoMaker:
                 {"type": "text", "text": text_prompt},
                 {"type": "image_url", "image_url": {"url": final_image_url}}
             ]
-            print("🎬 이미지-to-비디오 모드로 생성합니다")
+            
+            if use_pro_model:
+                print("🎬 이미지-to-비디오 모드로 생성합니다 (Pro 모델)")
+            else:
+                print("🎬 이미지-to-비디오 모드로 생성합니다 (Lite 모델)")
         else:
-            model = "seedance-1-0-lite-t2v-250428"
+            if use_pro_model:
+                model = "seedance-1-0-pro-250528"
+            else:
+                model = "seedance-1-0-lite-t2v-250428"
+                
             content = [
                 {"type": "text", "text": text_prompt}
             ]
-            print("📝 텍스트-to-비디오 모드로 생성합니다")
+            
+            if use_pro_model:
+                print("📝 텍스트-to-비디오 모드로 생성합니다 (Pro 모델)")
+            else:
+                print("📝 텍스트-to-비디오 모드로 생성합니다 (Lite 모델)")
         
         data = {
             "model": model,
@@ -972,7 +985,8 @@ def read_config_file() -> dict:
         'seed': -1,
         'camerafixed': False,
         'callback_url': None,
-        'image_file': None
+        'image_file': None,
+        'use_pro_model': False
     }
     try:
         with open("config.txt", "r", encoding="utf-8") as f:
@@ -984,7 +998,7 @@ def read_config_file() -> dict:
                     key = key.strip()
                     value = value.strip()
                     
-                    if key == "resolution" and value in ["480p", "720p"]:
+                    if key == "resolution" and value in ["480p", "720p", "1080p"]:
                         config['resolution'] = value
                     elif key == "ratio" and value in ["16:9", "4:3", "1:1", "3:4", "9:16", "21:9", "9:21", "keep_ratio"]:
                         config['ratio'] = value
@@ -1002,6 +1016,8 @@ def read_config_file() -> dict:
                         config['callback_url'] = value
                     elif key == "image_file" and value:
                         config['image_file'] = value
+                    elif key == "use_pro_model" and value.lower() in ["true", "false"]:
+                        config['use_pro_model'] = value.lower() == "true"
         
         return config
         
@@ -1055,12 +1071,13 @@ def create_example_files():
 
 # 🎥 비디오 파라미터 설정
 
-# 해상도 (480p, 720p)
+# 해상도 (480p, 720p, 1080p)
+# 주의: 1080p는 Pro 모델에서만 지원됩니다
 resolution=720p
 
 # 화면비 
-# - 텍스트-to-비디오: 16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, keep_ratio
-# - 이미지-to-비디오: adaptive, keep_ratio만 지원 (다른 값 설정시 자동으로 adaptive 사용)
+# - 텍스트-to-비디오: 16:9, 4:3, 1:1, 3:4, 9:16, 21:9, 9:21, keep_ratio (Pro/Lite 모두 지원)
+# - 이미지-to-비디오: adaptive, keep_ratio만 지원 (Pro/Lite 모두 동일, 다른 값 설정시 자동으로 adaptive 사용)
 ratio=9:16
 
 # 동영상 길이 (5, 10) - 초 단위
@@ -1077,6 +1094,11 @@ seed=-1
 
 # 카메라 고정 (true, false)
 camerafixed=false
+
+# 🚀 Pro 모델 사용 (true, false)
+# Pro 모델은 더 높은 품질의 동영상을 생성하지만 토큰 사용량이 더 많습니다
+# Pro 모델에서만 1080p 해상도와 모든 화면비가 지원됩니다
+use_pro_model=false
 
 # 콜백 URL (작업 완료 시 알림받을 웹훅 URL)
 # callback_url=https://your-server.com/webhook
@@ -1414,6 +1436,10 @@ def main():
         print(f"     시드: {video_config['seed']}")
     if video_config.get('camerafixed'):
         print(f"     카메라 고정: 예")
+    if video_config.get('use_pro_model'):
+        print(f"     모델: Pro (고품질)")
+    else:
+        print(f"     모델: Lite (표준)")
     if video_config.get('callback_url'):
         print(f"     콜백 URL: {video_config['callback_url']}")
     print()

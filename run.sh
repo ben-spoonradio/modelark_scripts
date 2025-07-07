@@ -53,6 +53,19 @@ if ! grep -q "$BREW_PATH_EXPORT" "$ZSHRC_FILE" 2>/dev/null; then
     echo "✅ .zshrc에 PATH가 추가되었습니다."
 fi
 
+# Python alias 설정
+PYTHON_ALIAS='alias python="python3"'
+if ! grep -q "$PYTHON_ALIAS" "$ZSHRC_FILE" 2>/dev/null; then
+    echo "🐍 .zshrc에 python alias를 추가하는 중..."
+    echo "" >> "$ZSHRC_FILE"
+    echo "# Python alias" >> "$ZSHRC_FILE"
+    echo "$PYTHON_ALIAS" >> "$ZSHRC_FILE"
+    echo "✅ .zshrc에 python alias가 추가되었습니다."
+fi
+
+# 현재 세션에서도 python alias 설정
+alias python="python3"
+
 # 현재 세션에서 PATH 설정
 export PATH="$BREW_BIN:$PATH"
 
