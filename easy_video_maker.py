@@ -28,10 +28,21 @@ import logging
 import subprocess
 from PIL import Image
 import cv2
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+from rich.prompt import Prompt, Confirm
+from rich.text import Text
+from rich.columns import Columns
+from rich.align import Align
 
 # 로그 설정 (사용자가 볼 필요 없는 기술적 정보는 숨김)
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+# Rich Console 초기화
+console = Console()
 
 class EasyVideoMaker:
     """쉬운 동영상 생성기"""
@@ -223,6 +234,167 @@ class EasyVideoMaker:
         
         return results
     
+    def merge_videos(self, video_paths: list, output_path: str = None) -> Optional[str]:
+        """여러 동영상 파일을 하나로 합치기 (ffmpeg 사용)"""
+        if not video_paths:
+            console.print(Panel(
+                "[bold red]❌ 합칠 동영상이 없습니다.[/bold red]",
+                title="[bold red]합치기 오류[/bold red]",
+                border_style="red"
+            ))
+            return None
+        
+        if len(video_paths) == 1:
+            console.print(Panel(
+                "[bold yellow]⚠️  동영상이 1개뿐입니다. 합치기가 필요 없습니다.[/bold yellow]",
+                title="[bold yellow]합치기 불필요[/bold yellow]",
+                border_style="yellow"
+            ))
+            return video_paths[0]
+        
+        console.print()
+        console.print(Panel(
+            f"[bold cyan]🎬 {len(video_paths)}개의 동영상을 하나로 합치는 중...[/bold cyan]",
+            title="[bold cyan]동영상 합치기[/bold cyan]",
+            border_style="cyan"
+        ))
+        
+        try:
+            # 출력 파일명 생성
+            if output_path is None:
+                timestamp = int(time.time())
+                output_path = os.path.join("videos", f"merged_video_{timestamp}.mp4")
+            
+            # videos 폴더 확인
+            if not os.path.exists("videos"):
+                os.makedirs("videos")
+            
+            # 입력 파일들이 모두 존재하는지 확인
+            for video_path in video_paths:
+                if not os.path.exists(video_path):
+                    console.print(Panel(
+                        f"[bold red]❌ 동영상 파일을 찾을 수 없습니다:[/bold red] {video_path}",
+                        title="[bold red]파일 오류[/bold red]",
+                        border_style="red"
+                    ))
+                    return None
+            
+            # ffmpeg 명령어 구성 (concat demuxer 사용)
+            # 임시 파일 목록 생성
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+                concat_file = f.name
+                for video_path in video_paths:
+                    # 경로에 특수문자가 있을 경우를 대비해 절대경로 사용
+                    abs_path = os.path.abspath(video_path)
+                    f.write(f"file '{abs_path}'\n")
+            
+            # ffmpeg 명령어 실행
+            cmd = [
+                'ffmpeg',
+                '-f', 'concat',
+                '-safe', '0',
+                '-i', concat_file,
+                '-c', 'copy',  # 재인코딩 없이 복사 (빠름)
+                '-y',  # 출력 파일 덮어쓰기
+                output_path
+            ]
+            
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TimeElapsedColumn(),
+                console=console,
+                transient=True
+            ) as progress:
+                task = progress.add_task("동영상 합치는 중...", total=100)
+                
+                # ffmpeg 프로세스 실행
+                import subprocess
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True
+                )
+                
+                # 진행률 업데이트 (추정)
+                start_time = time.time()
+                while process.poll() is None:
+                    elapsed = time.time() - start_time
+                    # 동영상 개수와 예상 시간을 기반으로 진행률 추정
+                    estimated_total = len(video_paths) * 10  # 동영상당 약 10초 추정
+                    progress_percent = min(95, (elapsed / estimated_total) * 100)
+                    progress.update(task, completed=progress_percent)
+                    time.sleep(0.5)
+                
+                # 프로세스 완료 대기
+                stdout, stderr = process.communicate()
+                progress.update(task, completed=100)
+            
+            # 임시 파일 삭제
+            try:
+                os.unlink(concat_file)
+            except:
+                pass
+            
+            if process.returncode == 0:
+                # 파일 크기 확인
+                if os.path.exists(output_path):
+                    file_size = os.path.getsize(output_path) / (1024 * 1024)
+                    console.print()
+                    console.print(Panel(
+                        f"[bold green]✅ 동영상 합치기 완료![/bold green]\n\n"
+                        f"[bold blue]📁 출력 파일:[/bold blue] {output_path}\n"
+                        f"[bold blue]📊 파일 크기:[/bold blue] {file_size:.1f} MB\n"
+                        f"[bold blue]🎬 합친 클립 수:[/bold blue] {len(video_paths)}개",
+                        title="[bold green]합치기 성공[/bold green]",
+                        border_style="green"
+                    ))
+                    return output_path
+                else:
+                    console.print(Panel(
+                        "[bold red]❌ 출력 파일이 생성되지 않았습니다.[/bold red]",
+                        title="[bold red]합치기 실패[/bold red]",
+                        border_style="red"
+                    ))
+                    return None
+            else:
+                error_msg = stderr.strip() if stderr else "알 수 없는 오류"
+                console.print()
+                console.print(Panel(
+                    f"[bold red]❌ ffmpeg 오류:[/bold red]\n\n{error_msg}\n\n"
+                    "[bold yellow]💡 해결방법:[/bold yellow]\n"
+                    "1. ffmpeg가 설치되어 있는지 확인하세요\n"
+                    "2. 동영상 파일이 손상되지 않았는지 확인하세요\n"
+                    "3. 충분한 디스크 공간이 있는지 확인하세요",
+                    title="[bold red]합치기 실패[/bold red]",
+                    border_style="red"
+                ))
+                return None
+                
+        except FileNotFoundError:
+            console.print(Panel(
+                "[bold red]❌ ffmpeg를 찾을 수 없습니다.[/bold red]\n\n"
+                "[bold yellow]💡 설치 방법:[/bold yellow]\n"
+                "• macOS: brew install ffmpeg\n"
+                "• Ubuntu/Debian: sudo apt install ffmpeg\n"
+                "• Windows: https://ffmpeg.org/download.html",
+                title="[bold red]ffmpeg 없음[/bold red]",
+                border_style="red"
+            ))
+            return None
+        except Exception as e:
+            console.print()
+            console.print(Panel(
+                f"[bold red]❌ 동영상 합치기 실패:[/bold red] {e}",
+                title="[bold red]합치기 오류[/bold red]",
+                border_style="red"
+            ))
+            return None
+
     def extract_last_frame(self, video_path: str, output_path: str = None) -> Optional[str]:
         """동영상에서 마지막 프레임을 추출하여 이미지로 저장"""
         if not os.path.exists(video_path):
@@ -342,21 +514,82 @@ class EasyVideoMaker:
                 time.sleep(5)
         
         # 결과 요약
-        print("\n" + "=" * 50)
-        print("🔗 연속 동영상 체인 생성 결과:")
-        
+        console.print()
         completed = sum(1 for r in results if r and r.get('status') == 'completed')
         failed = sum(1 for r in results if not r or r.get('status') in ['generation_failed', 'download_failed', 'submission_failed'])
         
-        print(f"✅ 완료: {completed}개")
-        print(f"❌ 실패: {failed}개")
+        # 결과 테이블 생성
+        result_table = Table(title="[bold blue]🔗 연속 동영상 체인 생성 결과[/bold blue]", show_header=True, header_style="bold magenta")
+        result_table.add_column("항목", style="cyan", width=15)
+        result_table.add_column("개수", style="white", width=10)
+        
+        result_table.add_row("✅ 완료", f"[bold green]{completed}개[/bold green]")
+        result_table.add_row("❌ 실패", f"[bold red]{failed}개[/bold red]")
+        
+        console.print(result_table)
         
         successful_clips = [r for r in results if r and r.get('status') == 'completed']
         if successful_clips:
-            print(f"\n📁 생성된 동영상 파일들:")
+            console.print()
+            clips_table = Table(title="[bold blue]📁 생성된 동영상 파일들[/bold blue]", show_header=True, header_style="bold magenta")
+            clips_table.add_column("클립 번호", style="cyan", width=10)
+            clips_table.add_column("파일 경로", style="white", width=50)
+            
             for i, result in enumerate(successful_clips):
                 clip_num = start_index + results.index(result)
-                print(f"   {clip_num}. {result.get('local_path', '파일 없음')}")
+                file_path = result.get('local_path', '파일 없음')
+                clips_table.add_row(str(clip_num), file_path)
+            
+            console.print(clips_table)
+            
+            # 합치기 옵션 제공
+            if len(successful_clips) > 1:
+                console.print()
+                merge_option = Confirm.ask(
+                    f"[bold cyan]🎬 {len(successful_clips)}개의 클립을 하나의 동영상으로 합치시겠습니까?[/bold cyan]",
+                    default=True
+                )
+                
+                if merge_option:
+                    # 성공한 클립들의 경로 수집
+                    video_paths = [r.get('local_path') for r in successful_clips if r.get('local_path') and os.path.exists(r.get('local_path'))]
+                    
+                    if video_paths:
+                        merged_path = self.merge_videos(video_paths)
+                        if merged_path:
+                            # 결과에 합친 동영상 정보 추가
+                            merged_result = {
+                                'clip_number': 'merged',
+                                'prompt': f'합친 동영상 ({len(video_paths)}개 클립)',
+                                'status': 'merged',
+                                'local_path': merged_path
+                            }
+                            results.append(merged_result)
+                            
+                            console.print()
+                            console.print(Panel(
+                                f"[bold green]🎉 모든 클립이 성공적으로 합쳐졌습니다![/bold green]\n\n"
+                                f"[bold blue]📁 합친 동영상:[/bold blue] {merged_path}\n"
+                                f"[bold blue]🎬 총 클립 수:[/bold blue] {len(video_paths)}개",
+                                title="[bold green]체인 완성[/bold green]",
+                                border_style="green",
+                                padding=(1, 2)
+                            ))
+                    else:
+                        console.print(Panel(
+                            "[bold red]❌ 합칠 수 있는 동영상 파일이 없습니다.[/bold red]",
+                            title="[bold red]합치기 오류[/bold red]",
+                            border_style="red"
+                        ))
+                else:
+                    console.print(Panel(
+                        "[bold yellow]📝 개별 클립들이 각각 저장되어 있습니다.[/bold yellow]\n\n"
+                        "[bold cyan]💡 나중에 합치려면:[/bold cyan]\n"
+                        "videos/ 폴더의 파일들을 수동으로 합치거나\n"
+                        "ffmpeg 명령어를 사용하세요.",
+                        title="[bold yellow]개별 저장[/bold yellow]",
+                        border_style="yellow"
+                    ))
         
         return results
     
@@ -562,12 +795,25 @@ class EasyVideoMaker:
         if video_config is None:
             video_config = {}
         
-        print("🎬 동영상 생성을 시작합니다...")
-        print(f"📝 설명: {description[:50]}{'...' if len(description) > 50 else ''}")
+        console.print()
+        console.print(Panel(
+            "[bold cyan]🎬 동영상 생성을 시작합니다...[/bold cyan]",
+            title="[bold blue]동영상 생성[/bold blue]",
+            border_style="blue"
+        ))
+        
+        # 설정 정보 표시
+        info_table = Table(show_header=False, box=None, padding=(0, 1))
+        info_table.add_column("항목", style="cyan")
+        info_table.add_column("내용", style="white")
+        
+        description_text = description[:50] + '...' if len(description) > 50 else description
+        info_table.add_row("📝 설명", description_text)
+        
         if image_url:
-            print(f"🖼️  이미지: {image_url}")
+            info_table.add_row("🖼️  이미지", image_url)
         else:
-            print("📝 텍스트만으로 동영상을 생성합니다")
+            info_table.add_row("📝 모드", "텍스트만으로 동영상을 생성합니다")
         
         # 비디오 설정 표시
         display_ratio = video_config.get('ratio', '16:9')
@@ -576,8 +822,11 @@ class EasyVideoMaker:
         if image_url and display_ratio not in ['adaptive', 'keep_ratio']:
             display_ratio = f"{display_ratio} → adaptive (i2v 제한)"
         
-        print(f"⚙️  설정: {video_config.get('resolution', '720p')} | {display_ratio} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps | {model_type}")
-        print()
+        settings_text = f"{video_config.get('resolution', '720p')} | {display_ratio} | {video_config.get('duration', 5)}초 | {video_config.get('fps', 24)}fps | {model_type}"
+        info_table.add_row("⚙️  설정", settings_text)
+        
+        console.print(info_table)
+        console.print()
         
         # 1단계: 동영상 생성 요청
         task_id = self._start_generation(description, image_url, video_config)
@@ -586,11 +835,15 @@ class EasyVideoMaker:
         
         # 콜백 URL이 설정된 경우 기다리지 않고 task_id만 반환
         if video_config.get('callback_url'):
-            print("📞 콜백 URL이 설정되어 있습니다.")
-            print("🔔 작업 완료 시 자동으로 알림을 받게 됩니다.")
-            print(f"📋 작업 ID: {task_id}")
-            print("💡 수동으로 상태를 확인하려면:")
-            print(f"   python easy_video_maker.py --check {task_id}")
+            console.print(Panel(
+                "[bold green]📞 콜백 URL이 설정되어 있습니다.[/bold green]\n\n"
+                "[bold cyan]🔔 작업 완료 시 자동으로 알림을 받게 됩니다.[/bold cyan]\n\n"
+                f"[bold blue]📋 작업 ID:[/bold blue] {task_id}\n\n"
+                "[bold yellow]💡 수동으로 상태를 확인하려면:[/bold yellow]\n"
+                f"   python easy_video_maker.py --check {task_id}",
+                title="[bold green]콜백 모드[/bold green]",
+                border_style="green"
+            ))
             return task_id
         
         # 2단계: 완료까지 기다리기
@@ -616,8 +869,13 @@ class EasyVideoMaker:
         
         # 1080p 사용 시 Pro 모델 필요 경고
         if video_config.get('resolution') == '1080p' and not use_pro_model:
-            print("⚠️  경고: 1080p 해상도는 Pro 모델에서만 지원됩니다. Pro 모델을 사용하려면 config.txt에서 use_pro_model=true로 설정하세요.")
-            print("📝 720p로 변경하여 진행합니다.")
+            console.print(Panel(
+                "[bold yellow]⚠️  경고: 1080p 해상도는 Pro 모델에서만 지원됩니다.[/bold yellow]\n\n"
+                "[bold cyan]Pro 모델을 사용하려면 config.txt에서 use_pro_model=true로 설정하세요.[/bold cyan]\n\n"
+                "[bold blue]📝 720p로 변경하여 진행합니다.[/bold blue]",
+                title="[bold yellow]해상도 경고[/bold yellow]",
+                border_style="yellow"
+            ))
             video_config['resolution'] = '720p'
         
         # API 문서에 따른 파라미터 추가
@@ -748,84 +1006,133 @@ class EasyVideoMaker:
     
     def _wait_for_video(self, task_id: str) -> Optional[str]:
         """동영상 완성까지 기다리기"""
-        print("⏳ 동영상을 만들고 있습니다. 잠시만 기다려주세요...")
-        print("   (보통 1-3분 정도 걸립니다)")
-        print(f"   작업 ID: {task_id}")
-        print()
+        console.print()
+        console.print(Panel(
+            "[bold cyan]⏳ 동영상을 만들고 있습니다. 잠시만 기다려주세요...[/bold cyan]\n\n"
+            "[dim](보통 1-3분 정도 걸립니다)[/dim]\n\n"
+            f"[bold blue]작업 ID:[/bold blue] {task_id}",
+            title="[bold cyan]동영상 생성 중[/bold cyan]",
+            border_style="cyan"
+        ))
         
         check_url = f"{self.base_url}/api/v3/contents/generations/tasks/{task_id}"
         start_time = time.time()
         
-        for i in range(60):  # 최대 10분 대기 (10초씩 60번)
-            try:
-                response = requests.get(check_url, headers=self.headers)
-                response.raise_for_status()
-                result = response.json()
-                
-                status = result.get("status")
-                elapsed_time = int(time.time() - start_time)
-                
-                if status == "succeeded":
-                    video_url = result.get("content", {}).get("video_url")
-                    if video_url:
-                        print(f"\n🎉 동영상이 완성되었습니다! (소요시간: {elapsed_time}초)")
-                        # 토큰 사용량 표시
-                        usage = result.get("usage", {})
-                        if usage.get("completion_tokens"):
-                            print(f"📊 토큰 사용량: {usage['completion_tokens']:,} 토큰")
-                        return video_url
-                    else:
-                        print("\n❌ 오류: 동영상 주소를 찾을 수 없습니다.")
-                        return None
-                
-                elif status == "failed":
-                    error_info = result.get("error", {})
-                    error_code = error_info.get("code", "Unknown")
-                    error_message = error_info.get("message", "알 수 없는 오류")
-                    
-                    print(f"\n❌ 동영상 생성 실패:")
-                    print(f"   오류 코드: {error_code}")
-                    print(f"   오류 내용: {error_message}")
-                    
-                    # 일반적인 오류에 대한 안내
-                    if "SensitiveContent" in error_code:
-                        print("💡 해결방법: 프롬프트 내용을 수정해서 다시 시도해보세요.")
-                    elif "QuotaExceeded" in error_code:
-                        print("💡 해결방법: 잠시 후 다시 시도해보세요. (할당량 초과)")
-                    
-                    return None
-                
-                elif status == "queued":
-                    dots = "." * ((i % 3) + 1)
-                    print(f"\r   대기 중{dots} ({elapsed_time}초 경과)   ", end="", flush=True)
-                    time.sleep(5)  # 대기중일 때는 5초마다 확인
-                    
-                elif status == "running":
-                    dots = "." * ((i % 3) + 1)
-                    print(f"\r   생성 중{dots} ({elapsed_time}초 경과)   ", end="", flush=True)
-                    time.sleep(10)  # 실행중일 때는 10초마다 확인
-                    
-                else:  # 기타 상태
-                    dots = "." * ((i % 3) + 1)
-                    print(f"\r   작업 중{dots} 상태: {status} ({elapsed_time}초 경과)   ", end="", flush=True)
-                    time.sleep(10)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            TimeElapsedColumn(),
+            console=console,
+            transient=True
+        ) as progress:
+            task = progress.add_task("동영상 생성 중...", total=100)
             
-            except requests.exceptions.RequestException as e:
-                print(f"\n❌ 네트워크 오류: {e}")
-                print("💡 인터넷 연결을 확인하고 다시 시도해주세요.")
-                return None
-            except Exception as e:
-                print(f"\n❌ 오류: 상태 확인 실패 - {e}")
-                return None
+            for i in range(60):  # 최대 10분 대기 (10초씩 60번)
+                try:
+                    response = requests.get(check_url, headers=self.headers)
+                    response.raise_for_status()
+                    result = response.json()
+                    
+                    status = result.get("status")
+                    elapsed_time = int(time.time() - start_time)
+                    
+                    # 진행률 업데이트 (시간 기반으로 추정)
+                    progress_percent = min(95, (elapsed_time / 180) * 100)  # 3분 기준으로 95%까지
+                    
+                    if status == "succeeded":
+                        progress.update(task, completed=100, description="[bold green]동영상 생성 완료![/bold green]")
+                        video_url = result.get("content", {}).get("video_url")
+                        if video_url:
+                            console.print()
+                            success_message = f"[bold green]🎉 동영상이 완성되었습니다![/bold green] (소요시간: {elapsed_time}초)"
+                            # 토큰 사용량 표시
+                            usage = result.get("usage", {})
+                            if usage.get("completion_tokens"):
+                                success_message += f"\n[bold blue]📊 토큰 사용량:[/bold blue] {usage['completion_tokens']:,} 토큰"
+                            
+                            console.print(Panel(
+                                success_message,
+                                title="[bold green]생성 성공[/bold green]",
+                                border_style="green"
+                            ))
+                            return video_url
+                        else:
+                            console.print(Panel(
+                                "[bold red]❌ 오류: 동영상 주소를 찾을 수 없습니다.[/bold red]",
+                                title="[bold red]생성 오류[/bold red]",
+                                border_style="red"
+                            ))
+                            return None
+                    
+                    elif status == "failed":
+                        error_info = result.get("error", {})
+                        error_code = error_info.get("code", "Unknown")
+                        error_message = error_info.get("message", "알 수 없는 오류")
+                        
+                        error_text = f"[bold red]❌ 동영상 생성 실패:[/bold red]\n\n"
+                        error_text += f"[bold yellow]오류 코드:[/bold yellow] {error_code}\n"
+                        error_text += f"[bold yellow]오류 내용:[/bold yellow] {error_message}\n\n"
+                        
+                        # 일반적인 오류에 대한 안내
+                        if "SensitiveContent" in error_code:
+                            error_text += "[bold cyan]💡 해결방법:[/bold cyan] 프롬프트 내용을 수정해서 다시 시도해보세요."
+                        elif "QuotaExceeded" in error_code:
+                            error_text += "[bold cyan]💡 해결방법:[/bold cyan] 잠시 후 다시 시도해보세요. (할당량 초과)"
+                        
+                        console.print()
+                        console.print(Panel(
+                            error_text,
+                            title="[bold red]생성 실패[/bold red]",
+                            border_style="red"
+                        ))
+                        return None
+                    
+                    elif status == "queued":
+                        progress.update(task, completed=progress_percent, description=f"[yellow]대기 중...[/yellow] ({elapsed_time}초)")
+                        time.sleep(5)  # 대기중일 때는 5초마다 확인
+                        
+                    elif status == "running":
+                        progress.update(task, completed=progress_percent, description=f"[green]생성 중...[/green] ({elapsed_time}초)")
+                        time.sleep(10)  # 실행중일 때는 10초마다 확인
+                        
+                    else:  # 기타 상태
+                        progress.update(task, completed=progress_percent, description=f"[cyan]작업 중... ({status})[/cyan] ({elapsed_time}초)")
+                        time.sleep(10)
+                
+                except requests.exceptions.RequestException as e:
+                    console.print()
+                    console.print(Panel(
+                        f"[bold red]❌ 네트워크 오류:[/bold red] {e}\n\n"
+                        "[bold yellow]💡 인터넷 연결을 확인하고 다시 시도해주세요.[/bold yellow]",
+                        title="[bold red]네트워크 오류[/bold red]",
+                        border_style="red"
+                    ))
+                    return None
+                except Exception as e:
+                    console.print()
+                    console.print(Panel(
+                        f"[bold red]❌ 오류: 상태 확인 실패[/bold red] - {e}",
+                        title="[bold red]시스템 오류[/bold red]",
+                        border_style="red"
+                    ))
+                    return None
         
-        print(f"\n⏰ 시간 초과: 10분이 지났습니다.")
-        print("💡 작업이 계속 진행 중일 수 있습니다. 잠시 후 다음 명령어로 확인해보세요:")
-        print(f"   python easy_video_maker.py --check {task_id}")
+        console.print()
+        console.print(Panel(
+            f"[bold red]⏰ 시간 초과: 10분이 지났습니다.[/bold red]\n\n"
+            "[bold yellow]💡 작업이 계속 진행 중일 수 있습니다. 잠시 후 다음 명령어로 확인해보세요:[/bold yellow]\n"
+            f"   python easy_video_maker.py --check {task_id}",
+            title="[bold red]시간 초과[/bold red]",
+            border_style="red"
+        ))
         return None
     
     def _download_video(self, video_url: str) -> Optional[str]:
         """동영상 다운로드"""
-        print("\n📥 동영상을 다운로드합니다...")
+        console.print()
+        console.print("[bold cyan]📥 동영상을 다운로드합니다...[/bold cyan]")
         
         try:
             # 다운로드 폴더 만들기
@@ -841,24 +1148,56 @@ class EasyVideoMaker:
             response = requests.get(video_url, stream=True)
             response.raise_for_status()
             
-            with open(filepath, 'wb') as f:
-                total_size = 0
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-                    total_size += len(chunk)
-                    if total_size > 1024 * 1024:  # 1MB마다 표시
-                        print(".", end="", flush=True)
+            # 파일 크기 확인
+            total_size = int(response.headers.get('content-length', 0))
             
-            print(f"\n✅ 완료! 동영상이 저장되었습니다: {filepath}")
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TextColumn("•"),
+                TextColumn("{task.completed}/{task.total} MB"),
+                console=console,
+                transient=True
+            ) as progress:
+                task = progress.add_task("다운로드 중...", total=total_size // (1024 * 1024) if total_size > 0 else 100)
+                
+                with open(filepath, 'wb') as f:
+                    downloaded = 0
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            progress.update(task, completed=downloaded // (1024 * 1024))
+                        else:
+                            # 파일 크기를 모르는 경우 진행률을 추정
+                            progress.update(task, completed=min(90, downloaded // (1024 * 1024)))
+                
+                if total_size == 0:
+                    progress.update(task, completed=100)
             
             # 파일 크기 표시
             file_size = os.path.getsize(filepath) / (1024 * 1024)
-            print(f"📊 파일 크기: {file_size:.1f} MB")
+            
+            console.print()
+            console.print(Panel(
+                f"[bold green]✅ 완료! 동영상이 저장되었습니다:[/bold green]\n\n"
+                f"[bold blue]📁 파일 경로:[/bold blue] {filepath}\n"
+                f"[bold blue]📊 파일 크기:[/bold blue] {file_size:.1f} MB",
+                title="[bold green]다운로드 완료[/bold green]",
+                border_style="green"
+            ))
             
             return filepath
             
         except Exception as e:
-            print(f"❌ 오류: 다운로드 실패 - {e}")
+            console.print()
+            console.print(Panel(
+                f"[bold red]❌ 오류: 다운로드 실패[/bold red] - {e}",
+                title="[bold red]다운로드 오류[/bold red]",
+                border_style="red"
+            ))
             return None
 
 
@@ -916,8 +1255,12 @@ def select_image_from_folder() -> Optional[str]:
     # images 폴더가 없으면 생성
     if not os.path.exists(images_dir):
         os.makedirs(images_dir)
-        print(f"📁 {images_dir} 폴더를 생성했습니다.")
-        print("💡 이 폴더에 이미지 파일을 넣고 다시 실행하세요.")
+        console.print(Panel(
+            f"[bold blue]📁 {images_dir} 폴더를 생성했습니다.[/bold blue]\n\n"
+            "[bold yellow]💡 이 폴더에 이미지 파일을 넣고 다시 실행하세요.[/bold yellow]",
+            title="[bold blue]폴더 생성[/bold blue]",
+            border_style="blue"
+        ))
         return None
     
     # 지원되는 이미지 확장자
@@ -930,48 +1273,51 @@ def select_image_from_folder() -> Optional[str]:
             image_files.append(file)
     
     if not image_files:
-        print(f"❌ {images_dir} 폴더에 이미지 파일이 없습니다.")
-        print("💡 지원 형식: JPEG, PNG, WEBP, BMP, TIFF, GIF")
+        console.print(Panel(
+            f"[bold red]❌ {images_dir} 폴더에 이미지 파일이 없습니다.[/bold red]\n\n"
+            "[bold yellow]💡 지원 형식:[/bold yellow] JPEG, PNG, WEBP, BMP, TIFF, GIF",
+            title="[bold red]이미지 없음[/bold red]",
+            border_style="red"
+        ))
         return None
     
-    # 이미지 파일 목록 표시
-    print(f"📁 {images_dir} 폴더의 이미지 파일들:")
-    print()
+    # 이미지 파일 목록을 Table로 표시
+    image_table = Table(title=f"[bold blue]📁 {images_dir} 폴더의 이미지 파일들[/bold blue]", show_header=True, header_style="bold magenta")
+    image_table.add_column("번호", style="cyan", width=6)
+    image_table.add_column("파일명", style="white", width=30)
+    image_table.add_column("크기", style="green", width=10)
     
     for i, file in enumerate(image_files, 1):
         file_path = os.path.join(images_dir, file)
         file_size = os.path.getsize(file_path) / 1024  # KB
-        print(f"  {i:2d}. {file} ({file_size:.1f}KB)")
+        image_table.add_row(str(i), file, f"{file_size:.1f}KB")
     
-    print(f"  {len(image_files) + 1:2d}. 이미지 없이 텍스트만 사용")
-    print()
+    image_table.add_row(str(len(image_files) + 1), "[yellow]이미지 없이 텍스트만 사용[/yellow]", "")
+    
+    console.print(image_table)
+    console.print()
     
     # 사용자 선택
     while True:
         try:
-            choice = input(f"이미지를 선택하세요 (1-{len(image_files) + 1}): ").strip()
+            choice = Prompt.ask(f"이미지를 선택하세요", choices=[str(i) for i in range(1, len(image_files) + 2)])
             
-            if not choice:
-                print("❌ 선택해주세요.")
-                continue
-                
             choice_num = int(choice)
             
             if choice_num == len(image_files) + 1:
                 # 텍스트만 사용
+                console.print("[bold yellow]📝 텍스트만으로 동영상을 생성합니다[/bold yellow]")
                 return None
             elif 1 <= choice_num <= len(image_files):
                 selected_file = image_files[choice_num - 1]
                 selected_path = os.path.join(images_dir, selected_file)
-                print(f"✅ 선택된 이미지: {selected_file}")
+                console.print(f"[bold green]✅ 선택된 이미지:[/bold green] {selected_file}")
                 return selected_path
-            else:
-                print(f"❌ 1-{len(image_files) + 1} 사이의 숫자를 입력하세요.")
                 
         except ValueError:
-            print("❌ 숫자를 입력하세요.")
+            console.print("[bold red]❌ 숫자를 입력하세요.[/bold red]")
         except KeyboardInterrupt:
-            print("\n❌ 사용자가 취소했습니다.")
+            console.print("\n[bold red]❌ 사용자가 취소했습니다.[/bold red]")
             return None
 
 def read_config_file() -> dict:
@@ -1251,7 +1597,13 @@ def main():
             )
             
             # 결과 저장 (간단한 출력으로 대체)
-            print(f"\n📊 체인 생성 완료: {len([r for r in results if r.get('status') == 'completed'])}개 성공")
+            completed_count = len([r for r in results if r.get('status') == 'completed'])
+            merged_count = len([r for r in results if r.get('status') == 'merged'])
+            
+            if merged_count > 0:
+                console.print(f"\n[bold green]📊 체인 생성 및 합치기 완료: {completed_count}개 클립 → 1개 합친 동영상[/bold green]")
+            else:
+                console.print(f"\n[bold green]📊 체인 생성 완료: {completed_count}개 성공[/bold green]")
             return
             
             # 배치 프롬프트 읽기
@@ -1322,28 +1674,38 @@ def main():
             return
         
         elif command == "--help":
-            print("🎥 쉬운 동영상 생성기 - 명령어 도움말")
-            print("=" * 50)
-            print()
-            print("사용법:")
-            print("  python easy_video_maker.py                         # 일반 실행 (단일 동영상)")
-            print("  python easy_video_maker.py --batch                 # 배치 실행 (전체)")
-            print("  python easy_video_maker.py --batch <시작> <끝>     # 배치 실행 (범위 지정)")
-            print("  python easy_video_maker.py --check <task_id>       # 작업 상태 확인")
-            print("  python easy_video_maker.py --list [개수]           # 최근 작업 목록")
-            print("  python easy_video_maker.py --help                  # 이 도움말")
-            print()
-            print("배치 모드:")
-            print("  1. batch_prompts.txt 파일에 각 줄마다 프롬프트 작성")
-            print("  2. --batch 옵션으로 실행 (범위 지정 가능)")
-            print("  3. 부분적으로 동영상 생성 (예: 1-5번만)")
-            print()
-            print("예시:")
-            print("  python easy_video_maker.py --batch              # 전체 실행")
-            print("  python easy_video_maker.py --batch 1 5          # 1-5번만 실행")
-            print("  python easy_video_maker.py --batch 10 15        # 10-15번만 실행")
-            print("  python easy_video_maker.py --check cgt-2024****-**")
-            print("  python easy_video_maker.py --list 20")
+            console.print(Panel(
+                "[bold cyan]사용법:[/bold cyan]\n"
+                "  python easy_video_maker.py                         # 일반 실행 (단일 동영상)\n"
+                "  python easy_video_maker.py --batch                 # 배치 실행 (전체)\n"
+                "  python easy_video_maker.py --batch <시작> <끝>     # 배치 실행 (범위 지정)\n"
+                "  python easy_video_maker.py --chain                 # 연속 체인 (전체)\n"
+                "  python easy_video_maker.py --chain <시작> <끝>     # 연속 체인 (범위 지정)\n"
+                "  python easy_video_maker.py --check <task_id>       # 작업 상태 확인\n"
+                "  python easy_video_maker.py --list [개수]           # 최근 작업 목록\n"
+                "  python easy_video_maker.py --help                  # 이 도움말\n\n"
+                
+                "[bold yellow]배치 모드:[/bold yellow]\n"
+                "  1. batch_prompts.txt 파일에 각 줄마다 프롬프트 작성\n"
+                "  2. --batch 옵션으로 실행 (범위 지정 가능)\n"
+                "  3. 부분적으로 동영상 생성 (예: 1-5번만)\n\n"
+                
+                "[bold green]연속 체인 모드:[/bold green]\n"
+                "  1. 각 클립의 마지막 프레임이 다음 클립의 시작 이미지로 사용\n"
+                "  2. 연결된 스토리 동영상 생성 가능\n"
+                "  3. 생성 완료 후 하나의 동영상으로 합치기 옵션 제공\n\n"
+                
+                "[bold cyan]예시:[/bold cyan]\n"
+                "  python easy_video_maker.py --batch              # 전체 실행\n"
+                "  python easy_video_maker.py --batch 1 5          # 1-5번만 실행\n"
+                "  python easy_video_maker.py --chain              # 연속 체인 전체\n"
+                "  python easy_video_maker.py --chain 1 3          # 1-3번 연속 체인\n"
+                "  python easy_video_maker.py --check cgt-2024****-**\n"
+                "  python easy_video_maker.py --list 20",
+                title="[bold blue]🎥 쉬운 동영상 생성기 - 명령어 도움말[/bold blue]",
+                border_style="blue",
+                padding=(1, 2)
+            ))
             return
         
         else:
@@ -1352,103 +1714,136 @@ def main():
             return
     
     # 일반 실행 모드
-    print("🎥 쉬운 동영상 생성기")
-    print("=" * 40)
-    print()
+    console.print()
+    console.print(Panel(
+        "[bold blue]🎥 쉬운 동영상 생성기[/bold blue]",
+        title="[bold green]Easy Video Maker[/bold green]",
+        border_style="bright_blue",
+        padding=(1, 2)
+    ))
+    console.print()
     
     # API 키 확인
     api_key = os.getenv("ARK_API_KEY")
     if not api_key:
-        print("❌ 오류: API 키가 설정되지 않았습니다.")
-        print()
-        print("💡 해결 방법:")
-        print("   1. 터미널(Terminal)을 열어주세요")
-        print("      - Spotlight 검색(⌘+Space)에서 'terminal' 입력")
-        print("      - 또는 Applications > Utilities > Terminal")
-        print("   2. 다음 명령어를 입력하세요:")
-        print("      export ARK_API_KEY=여기에_실제_API_키_입력")
-        print("   3. 이 프로그램을 다시 실행하세요")
-        print()
-        input("아무 키나 눌러서 종료하세요...")
+        console.print(Panel(
+            "[bold red]❌ 오류: API 키가 설정되지 않았습니다.[/bold red]\n\n"
+            "[bold yellow]💡 해결 방법:[/bold yellow]\n"
+            "   1. 터미널(Terminal)을 열어주세요\n"
+            "      - Spotlight 검색(⌘+Space)에서 'terminal' 입력\n"
+            "      - 또는 Applications > Utilities > Terminal\n"
+            "   2. 다음 명령어를 입력하세요:\n"
+            "      [bold green]export ARK_API_KEY=여기에_실제_API_키_입력[/bold green]\n"
+            "   3. 이 프로그램을 다시 실행하세요",
+            title="[bold red]API 키 오류[/bold red]",
+            border_style="red",
+            padding=(1, 2)
+        ))
+        console.print()
+        Prompt.ask("아무 키나 눌러서 종료하세요", default="")
         return
     
     # 예시 파일 생성
     create_example_files()
     
     # 설정 파일들 읽기
-    print("📂 설정을 준비하는 중...")
+    console.print("[bold cyan]📂 설정을 준비하는 중...[/bold cyan]")
     
     prompt_text = read_prompt_file()
     if not prompt_text:
-        print("\n💡 prompt.txt 파일을 확인하고 다시 실행해주세요.")
-        input("아무 키나 눌러서 종료하세요...")
+        console.print(Panel(
+            "[bold yellow]💡 prompt.txt 파일을 확인하고 다시 실행해주세요.[/bold yellow]",
+            title="[bold red]설정 파일 오류[/bold red]",
+            border_style="red"
+        ))
+        Prompt.ask("아무 키나 눌러서 종료하세요", default="")
         return
     
     # config.txt에서 비디오 설정 읽기
     video_config = read_config_file()
     
     # 이미지 선택 (config 파일 우선, 없으면 인터랙티브)
-    print()
+    console.print()
     if video_config.get('image_file'):
         image_url = video_config['image_file']
-        print(f"🖼️ 설정된 이미지 파일: {image_url}")
+        console.print(f"[bold green]🖼️ 설정된 이미지 파일:[/bold green] {image_url}")
         if not os.path.exists(image_url):
-            print(f"❌ 오류: 이미지 파일을 찾을 수 없습니다: {image_url}")
-            print("💡 config.txt의 image_file 경로를 확인하거나 파일을 생성하세요")
-            input("아무 키나 눌러서 종료하세요...")
+            console.print(Panel(
+                f"[bold red]❌ 오류: 이미지 파일을 찾을 수 없습니다:[/bold red] {image_url}\n\n"
+                "[bold yellow]💡 config.txt의 image_file 경로를 확인하거나 파일을 생성하세요[/bold yellow]",
+                title="[bold red]이미지 파일 오류[/bold red]",
+                border_style="red"
+            ))
+            Prompt.ask("아무 키나 눌러서 종료하세요", default="")
             return
     else:
-        print("🖼️ 이미지 선택:")
+        console.print("[bold green]🖼️ 이미지 선택:[/bold green]")
         image_url = select_image_from_folder()
     
-    print("✅ 설정 파일을 모두 읽었습니다!")
-    print()
+    console.print("[bold green]✅ 설정 파일을 모두 읽었습니다![/bold green]")
+    console.print()
     
-    # 설정 내용 확인
-    print("📋 확인된 설정:")
-    print(f"   동영상 설명: {prompt_text[:60]}{'...' if len(prompt_text) > 60 else ''}")
+    # 설정 내용 확인을 Table로 표시
+    config_table = Table(title="[bold blue]📋 확인된 설정[/bold blue]", show_header=True, header_style="bold magenta")
+    config_table.add_column("설정 항목", style="cyan", width=20)
+    config_table.add_column("값", style="white", width=50)
+    
+    # 동영상 설명
+    description_text = prompt_text[:60] + '...' if len(prompt_text) > 60 else prompt_text
+    config_table.add_row("동영상 설명", description_text)
+    
+    # 이미지 정보
     if image_url:
         if os.path.exists(image_url):
-            print(f"   이미지 파일: {image_url}")
-            print("   모드: 이미지-to-비디오 (i2v) - 로컬 파일")
+            config_table.add_row("이미지 파일", image_url)
+            config_table.add_row("모드", "[bold green]이미지-to-비디오 (i2v) - 로컬 파일[/bold green]")
         else:
-            print(f"   이미지 주소: {image_url[:60]}{'...' if len(image_url) > 60 else ''}")
-            print("   모드: 이미지-to-비디오 (i2v) - URL")
+            image_display = image_url[:60] + '...' if len(image_url) > 60 else image_url
+            config_table.add_row("이미지 주소", image_display)
+            config_table.add_row("모드", "[bold green]이미지-to-비디오 (i2v) - URL[/bold green]")
     else:
-        print("   모드: 텍스트-to-비디오 (t2v)")
+        config_table.add_row("모드", "[bold yellow]텍스트-to-비디오 (t2v)[/bold yellow]")
     
-    # 비디오 설정 표시
-    print("   비디오 설정:")
-    print(f"     해상도: {video_config['resolution']}")
+    # 비디오 설정
+    config_table.add_row("해상도", f"[bold]{video_config['resolution']}[/bold]")
     
     # 화면비 표시 (i2v 제한사항 포함)
     display_ratio = video_config['ratio']
     if image_url and display_ratio not in ['adaptive', 'keep_ratio']:
-        print(f"     화면비: {display_ratio} → adaptive (i2v 모드 제한)")
+        config_table.add_row("화면비", f"[yellow]{display_ratio} → adaptive (i2v 모드 제한)[/yellow]")
     else:
-        print(f"     화면비: {display_ratio}")
+        config_table.add_row("화면비", f"[bold]{display_ratio}[/bold]")
     
-    print(f"     길이: {video_config['duration']}초")
-    print(f"     프레임율: {video_config['fps']}fps")
+    config_table.add_row("길이", f"[bold]{video_config['duration']}초[/bold]")
+    config_table.add_row("프레임율", f"[bold]{video_config['fps']}fps[/bold]")
+    
     if video_config.get('watermark'):
-        print(f"     워터마크: 있음")
+        config_table.add_row("워터마크", "[red]있음[/red]")
     if video_config.get('seed', -1) != -1:
-        print(f"     시드: {video_config['seed']}")
+        config_table.add_row("시드", f"[bold]{video_config['seed']}[/bold]")
     if video_config.get('camerafixed'):
-        print(f"     카메라 고정: 예")
+        config_table.add_row("카메라 고정", "[green]예[/green]")
+    
     if video_config.get('use_pro_model'):
-        print(f"     모델: Pro (고품질)")
+        config_table.add_row("모델", "[bold green]Pro (고품질)[/bold green]")
     else:
-        print(f"     모델: Lite (표준)")
+        config_table.add_row("모델", "[bold blue]Lite (표준)[/bold blue]")
+    
     if video_config.get('callback_url'):
-        print(f"     콜백 URL: {video_config['callback_url']}")
-    print()
+        config_table.add_row("콜백 URL", video_config['callback_url'])
+    
+    console.print(config_table)
+    console.print()
     
     # 사용자 확인
-    confirm = input("🚀 동영상 생성을 시작할까요? (엔터를 누르면 시작, 'n' 입력하면 취소): ").strip().lower()
-    if confirm == 'n':
-        print("❌ 작업이 취소되었습니다.")
-        input("아무 키나 눌러서 종료하세요...")
+    confirm = Confirm.ask("🚀 동영상 생성을 시작할까요?", default=True)
+    if not confirm:
+        console.print(Panel(
+            "[bold red]❌ 작업이 취소되었습니다.[/bold red]",
+            title="[bold red]작업 취소[/bold red]",
+            border_style="red"
+        ))
+        Prompt.ask("아무 키나 눌러서 종료하세요", default="")
         return
     
     # 동영상 생성기 시작
@@ -1459,34 +1854,56 @@ def main():
         if result_path:
             # 콜백 URL이 설정된 경우 task_id가 반환됨
             if video_config.get('callback_url'):
-                print()
-                print("📞 작업이 접수되었습니다!")
-                print(f"📋 작업 ID: {result_path}")
-                print()
-                print("🔔 콜백 URL로 완료 알림이 전송됩니다.")
-                print("💡 수동 확인하려면:")
-                print(f"   python easy_video_maker.py --check {result_path}")
-                print()
-                print("🌐 웹훅 서버를 실행하려면:")
-                print("   python webhook_server.py")
+                console.print()
+                console.print(Panel(
+                    "[bold green]📞 작업이 접수되었습니다![/bold green]\n\n"
+                    f"[bold blue]📋 작업 ID:[/bold blue] {result_path}\n\n"
+                    "[bold cyan]🔔 콜백 URL로 완료 알림이 전송됩니다.[/bold cyan]\n\n"
+                    "[bold yellow]💡 수동 확인하려면:[/bold yellow]\n"
+                    f"   python easy_video_maker.py --check {result_path}\n\n"
+                    "[bold yellow]🌐 웹훅 서버를 실행하려면:[/bold yellow]\n"
+                    "   python webhook_server.py",
+                    title="[bold green]작업 접수 완료[/bold green]",
+                    border_style="green",
+                    padding=(1, 2)
+                ))
             else:
-                print()
-                print("🎊 축하합니다! 동영상 생성이 완료되었습니다!")
-                print(f"📁 저장 위치: {os.path.abspath(result_path)}")
-                print()
-                print("💡 팁: 다른 동영상을 만들려면 prompt.txt나 config.txt를 수정하고 다시 실행하세요!")
+                console.print()
+                console.print(Panel(
+                    "[bold green]🎊 축하합니다! 동영상 생성이 완료되었습니다![/bold green]\n\n"
+                    f"[bold blue]📁 저장 위치:[/bold blue] {os.path.abspath(result_path)}\n\n"
+                    "[bold yellow]💡 팁:[/bold yellow] 다른 동영상을 만들려면 prompt.txt나 config.txt를 수정하고 다시 실행하세요!",
+                    title="[bold green]🎉 생성 완료[/bold green]",
+                    border_style="green",
+                    padding=(1, 2)
+                ))
         else:
-            print()
-            print("😔 동영상 생성에 실패했습니다.")
-            print("💡 잠시 후 다시 시도해보세요.")
+            console.print()
+            console.print(Panel(
+                "[bold red]😔 동영상 생성에 실패했습니다.[/bold red]\n\n"
+                "[bold yellow]💡 잠시 후 다시 시도해보세요.[/bold yellow]",
+                title="[bold red]생성 실패[/bold red]",
+                border_style="red",
+                padding=(1, 2)
+            ))
         
     except KeyboardInterrupt:
-        print("\n\n❌ 사용자가 중단했습니다.")
+        console.print()
+        console.print(Panel(
+            "[bold red]❌ 사용자가 중단했습니다.[/bold red]",
+            title="[bold red]작업 중단[/bold red]",
+            border_style="red"
+        ))
     except Exception as e:
-        print(f"\n❌ 예상치 못한 오류가 발생했습니다: {e}")
+        console.print()
+        console.print(Panel(
+            f"[bold red]❌ 예상치 못한 오류가 발생했습니다:[/bold red]\n\n{e}",
+            title="[bold red]시스템 오류[/bold red]",
+            border_style="red"
+        ))
     
-    print()
-    input("아무 키나 눌러서 종료하세요...")
+    console.print()
+    Prompt.ask("아무 키나 눌러서 종료하세요", default="")
 
 
 if __name__ == "__main__":
