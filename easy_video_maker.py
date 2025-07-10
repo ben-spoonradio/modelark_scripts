@@ -1506,8 +1506,11 @@ def main():
         
         elif command == "--batch":
             # 배치 모드
-            print("🎬 배치 동영상 생성 모드")
-            print("=" * 40)
+            console.print(Panel(
+                "[bold cyan]🎬 배치 동영상 생성 모드[/bold cyan]",
+                title="[bold blue]Batch Mode[/bold blue]",
+                border_style="blue"
+            ))
             
             # 범위 파라미터 파싱
             start_index = 1
@@ -1520,9 +1523,104 @@ def main():
                     if len(sys.argv) > 3:
                         end_index = int(sys.argv[3])
                 except ValueError:
-                    print("❌ 오류: 시작/종료 인덱스는 숫자여야 합니다.")
-                    print("💡 사용법: python easy_video_maker.py --batch [시작번호] [종료번호]")
+                    console.print(Panel(
+                        "[bold red]❌ 오류: 시작/종료 인덱스는 숫자여야 합니다.[/bold red]\n\n"
+                        "[bold yellow]💡 사용법:[/bold yellow] python easy_video_maker.py --batch [시작번호] [종료번호]",
+                        title="[bold red]입력 오류[/bold red]",
+                        border_style="red"
+                    ))
                     return
+            
+            # 배치 프롬프트 읽기
+            batch_prompts = read_batch_prompts_file()
+            if not batch_prompts:
+                return
+            
+            # 인덱스 범위 조정
+            total_prompts = len(batch_prompts)
+            if end_index is None:
+                end_index = total_prompts
+            
+            start_index = max(1, start_index)
+            end_index = min(end_index, total_prompts)
+            
+            if start_index > end_index:
+                console.print(Panel(
+                    f"[bold red]❌ 오류: 시작 인덱스({start_index})가 종료 인덱스({end_index})보다 큽니다.[/bold red]",
+                    title="[bold red]범위 오류[/bold red]",
+                    border_style="red"
+                ))
+                return
+            
+            # 설정 읽기
+            video_config = read_config_file()
+            
+            # 이미지 선택
+            console.print()
+            console.print("[bold green]🖼️ 이미지 선택 (모든 동영상에 동일한 이미지 사용):[/bold green]")
+            image_url = select_image_from_folder()
+            
+            # 배치 설정 확인 테이블
+            batch_table = Table(title="[bold blue]📋 배치 설정 확인[/bold blue]", show_header=True, header_style="bold magenta")
+            batch_table.add_column("항목", style="cyan", width=20)
+            batch_table.add_column("내용", style="white", width=50)
+            
+            batch_table.add_row("전체 프롬프트", f"{total_prompts}개")
+            batch_table.add_row("실행 범위", f"{start_index}-{end_index} ({end_index - start_index + 1}개)")
+            
+            if image_url:
+                if os.path.exists(image_url):
+                    batch_table.add_row("이미지", f"{os.path.basename(image_url)} (로컬)")
+                    batch_table.add_row("모드", "[bold green]이미지-to-비디오 (i2v)[/bold green]")
+                else:
+                    batch_table.add_row("이미지", "URL")
+                    batch_table.add_row("모드", "[bold green]이미지-to-비디오 (i2v)[/bold green]")
+            else:
+                batch_table.add_row("모드", "[bold yellow]텍스트-to-비디오 (t2v)[/bold yellow]")
+            
+            console.print(batch_table)
+            
+            # 선택된 프롬프트 미리보기
+            console.print()
+            preview_table = Table(title="[bold blue]📝 실행될 프롬프트 미리보기[/bold blue]", show_header=True, header_style="bold magenta")
+            preview_table.add_column("번호", style="cyan", width=8)
+            preview_table.add_column("프롬프트", style="white", width=60)
+            
+            for i in range(start_index, min(start_index + 3, end_index + 1)):
+                prompt = batch_prompts[i-1]
+                preview_text = prompt[:50] + '...' if len(prompt) > 50 else prompt
+                preview_table.add_row(str(i), preview_text)
+            
+            if end_index - start_index + 1 > 3:
+                preview_table.add_row("...", f"(총 {end_index - start_index + 1}개)")
+            
+            console.print(preview_table)
+            
+            # 배치 처리 확인
+            console.print()
+            confirm = Confirm.ask("[bold cyan]🚀 배치 생성을 시작할까요?[/bold cyan]", default=True)
+            if not confirm:
+                console.print(Panel(
+                    "[bold red]❌ 배치 작업이 취소되었습니다.[/bold red]",
+                    title="[bold red]작업 취소[/bold red]",
+                    border_style="red"
+                ))
+                return
+            
+            # 배치 실행
+            results = video_maker.create_video_batch(batch_prompts, image_url, video_config, start_index, end_index)
+            
+            # 결과 저장
+            timestamp = int(time.time())
+            report_file = f"batch_report_{start_index}-{end_index}_{timestamp}.json"
+            try:
+                with open(report_file, 'w', encoding='utf-8') as f:
+                    json.dump(results, f, ensure_ascii=False, indent=2)
+                console.print(f"\n[bold green]📄 결과 리포트: {report_file}[/bold green]")
+            except Exception as e:
+                console.print(f"[bold yellow]⚠️  리포트 저장 실패: {e}[/bold yellow]")
+            
+            return
         
         elif command == "--chain":
             # 연속 체인 모드
@@ -1604,73 +1702,6 @@ def main():
                 console.print(f"\n[bold green]📊 체인 생성 및 합치기 완료: {completed_count}개 클립 → 1개 합친 동영상[/bold green]")
             else:
                 console.print(f"\n[bold green]📊 체인 생성 완료: {completed_count}개 성공[/bold green]")
-            return
-            
-            # 배치 프롬프트 읽기
-            prompts = read_batch_prompts_file()
-            if not prompts:
-                return
-            
-            # 범위 검증 및 조정
-            total_prompts = len(prompts)
-            if end_index is None:
-                end_index = total_prompts
-            
-            start_index = max(1, start_index)
-            end_index = min(end_index, total_prompts)
-            
-            if start_index > end_index:
-                print(f"❌ 오류: 시작 인덱스({start_index})가 종료 인덱스({end_index})보다 큽니다.")
-                return
-            
-            # 설정 읽기
-            video_config = read_config_file()
-            
-            # 이미지 선택
-            print("\n🖼️ 이미지 선택 (모든 동영상에 동일한 이미지 사용):")
-            image_url = select_image_from_folder()
-            
-            print(f"\n📋 배치 설정 확인:")
-            print(f"   전체 프롬프트: {total_prompts}개")
-            print(f"   실행 범위: {start_index}-{end_index} ({end_index - start_index + 1}개)")
-            if image_url:
-                if os.path.exists(image_url):
-                    print(f"   이미지: {os.path.basename(image_url)} (로컬)")
-                else:
-                    print(f"   이미지: URL")
-                print("   모드: 이미지-to-비디오 (i2v)")
-            else:
-                print("   모드: 텍스트-to-비디오 (t2v)")
-            
-            # 선택된 프롬프트 미리보기
-            print(f"\n📝 실행될 프롬프트 미리보기:")
-            for i in range(start_index, min(start_index + 3, end_index + 1)):
-                prompt = prompts[i-1]
-                print(f"   {i:2d}. {prompt[:50]}{'...' if len(prompt) > 50 else ''}")
-            
-            if end_index - start_index + 1 > 3:
-                print(f"   ... (총 {end_index - start_index + 1}개)")
-            
-            # 배치 처리 확인
-            print()
-            confirm = input("🚀 배치 생성을 시작할까요? (y/n): ").strip().lower()
-            if confirm != 'y':
-                print("❌ 배치 작업이 취소되었습니다.")
-                return
-            
-            # 배치 실행
-            results = video_maker.create_video_batch(prompts, image_url, video_config, start_index, end_index)
-            
-            # 결과 저장
-            timestamp = int(time.time())
-            report_file = f"batch_report_{start_index}-{end_index}_{timestamp}.json"
-            try:
-                with open(report_file, 'w', encoding='utf-8') as f:
-                    json.dump(results, f, ensure_ascii=False, indent=2)
-                print(f"\n📄 결과 리포트: {report_file}")
-            except Exception as e:
-                print(f"⚠️  리포트 저장 실패: {e}")
-            
             return
         
         elif command == "--help":
