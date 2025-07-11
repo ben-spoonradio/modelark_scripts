@@ -1375,6 +1375,27 @@ def read_config_file() -> dict:
         return config
 
 
+def show_config_links(mode="normal"):
+    """설정 파일 링크 표시"""
+    config_path = os.path.abspath("config.txt")
+    
+    if mode == "batch" or mode == "chain":
+        prompt_path = os.path.abspath("batch_prompts.txt")
+        prompt_label = "Batch Prompts 파일"
+    else:
+        prompt_path = os.path.abspath("prompt.txt")
+        prompt_label = "Prompt 파일"
+    
+    console.print(Panel(
+        f"[bold yellow]⚙️ 설정 파일 수정하기:[/bold yellow]\n\n"
+        f"[cyan]Config 파일:[/cyan] [link=file://{config_path}]{config_path}[/link]\n"
+        f"[cyan]{prompt_label}:[/cyan] [link=file://{prompt_path}]{prompt_path}[/link]\n\n"
+        "[dim]위 링크를 클릭하면 파일을 열 수 있습니다.[/dim]",
+        title="[bold blue]📝 설정 파일 링크[/bold blue]",
+        border_style="blue"
+    ))
+    console.print()
+
 def create_example_files():
     """예시 파일들 생성"""
     
@@ -1512,6 +1533,9 @@ def main():
                 border_style="blue"
             ))
             
+            # 설정 파일 링크 표시
+            show_config_links("batch")
+            
             # 범위 파라미터 파싱
             start_index = 1
             end_index = None
@@ -1626,6 +1650,9 @@ def main():
             # 연속 체인 모드
             print("🔗 연속 동영상 체인 생성 모드")
             print("=" * 40)
+            
+            # 설정 파일 링크 표시
+            show_config_links("chain")
             
             # 범위 파라미터 파싱
             start_index = 1
@@ -1779,6 +1806,9 @@ def main():
     
     # 설정 파일들 읽기
     console.print("[bold cyan]📂 설정을 준비하는 중...[/bold cyan]")
+    
+    # 설정 파일 수정 링크 표시
+    show_config_links()
     
     prompt_text = read_prompt_file()
     if not prompt_text:
