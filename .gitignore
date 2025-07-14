@@ -10,3 +10,5 @@ response.json
 reviews/
 videos/
 images/
+videos_with_audio/
+audio/

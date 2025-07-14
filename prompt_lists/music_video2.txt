@@ -1,0 +1,58 @@
+# AI 뮤직 비디오 생성 프롬프트 - 한국 배경 (총 2분 43초 / 16개 프롬프트)
+
+# 시간 구성 분석
+# 전주: 0:00-0:30 (30초)
+# 가사 부분: 0:30-2:44 (2분 14초)  
+# 총 길이: 2분 43초
+
+# 전주 구간 (0:00-0:30)
+
+# 프롬프트 1 (0:00-0:10) - 전주 1
+Cinematic wide establishing shot of Seoul skyline at dawn with soft blue-golden hour lighting. N Seoul Tower and modern skyscrapers silhouetted against misty morning sky. Slow aerial camera movement revealing the sleeping city. Modern K-ballad aesthetic with dreamy, ethereal atmosphere.
+
+# 프롬프트 2 (0:10-0:20) - 전주 2
+Wide shot of a modern Korean apartment interior bathed in soft morning light. Young Korean man in silhouette by large floor-to-ceiling windows overlooking Seoul cityscape. Minimalist Korean home design. Camera maintains distance, capturing his small figure against the vast urban landscape outside.
+
+# 프롬프트 3 (0:20-0:30) - 전주 3
+Medium-wide shot of the Korean man preparing to leave his apartment. Modern Korean interior design visible. He moves slowly, contemplatively through the space. Camera stays back, showing his entire figure as he gathers courage. Soft, cinematic lighting with contemporary ballad video aesthetics.
+
+# 가사 구간 (0:30-2:44)
+
+# 프롬프트 4 (0:30-0:40) - Verse 시작
+Wide interior shot of trendy Seoul café in Garosu-gil. Young Korean man sitting alone at a table, shot from across the café showing the full space. Large windows, modern Korean café aesthetic. His figure appears small and vulnerable against the spacious, minimalist interior. Soft natural lighting.
+
+# 프롬프트 5 (0:40-0:50) - Verse 계속
+Medium shot showing the café entrance and the Korean man's table in the same frame. People entering and leaving, creating movement while he remains still. Contemporary Korean urban fashion visible on passersby. Camera maintains respectful distance, emphasizing his waiting and anticipation.
+
+# 프롬프트 6 (0:50-1:00) - Verse 마무리
+Wide shot through café window from outside, showing him inside while Seoul street life flows past. Hongdae or Myeongdong street activity visible. Rain starting to fall on glass. Modern K-ballad cinematography with layers of depth and urban Korean atmosphere.
+
+# 프롬프트 7 (1:00-1:10) - Bridge 1
+Sweeping wide shot of the entire café interior, showing him alone among other Korean couples and groups. High angle or tracking shot emphasizing isolation within Seoul's social scene. Warm interior lighting contrasts with cooler exterior. Contemporary ballad video mood.
+
+# 프롬프트 8 (1:10-1:20) - Bridge 2
+Medium-wide shot of him by café window, with Hangang Park or Seoul street scene visible outside. Couples walking past in soft focus. His reflection in window glass creates artistic depth. Modern Korean ballad aesthetic with emotional distance and contemplation.
+
+# 프롬프트 9 (1:20-1:30) - Chorus 1 시작
+Wide shot as he exits café onto Seoul street. Camera follows from across the street, showing his full figure against Korean urban backdrop. Modern Seoul architecture and Korean signage visible. Beginning of his journey captured with cinematic scope and contemporary K-ballad styling.
+
+# 프롬프트 10 (1:30-1:40) - Chorus 1 계속
+Sweeping wide shots of him walking through iconic Seoul locations: Gangnam crossing, Cheonggyecheon stream. Camera maintains distance, showing him as part of the larger Korean cityscape. Modern skyscrapers and traditional elements blend. Contemporary ballad video cinematography.
+
+# 프롬프트 11 (1:40-1:50) - Chorus 1 마무리
+Artistic wide and aerial shots of his journey through Seoul. His small figure moving through vast Korean urban landscape. Stone steps of Bukchon Hanok Village or modern Seoul plazas. Camera work emphasizes scale and emotional journey with modern K-ballad aesthetics.
+
+# 프롬프트 12 (1:50-2:00) - Bridge 반복
+Wide shot in Hangang Park or Olympic Park. Him sitting alone on bench with Seoul skyline in background. Korean cherry blossoms or autumn foliage frame the scene. Other Korean couples visible in distance. Contemplative pause in modern ballad video style.
+
+# 프롬프트 13 (2:00-2:10) - Chorus 2 시작
+Cinematic wide shot of him walking with renewed purpose. Seoul sunset or golden hour lighting over Han River. N Seoul Tower visible in background. His silhouette against Korean skyline. Modern K-ballad cinematography with emotional crescendo building.
+
+# 프롬프트 14 (2:10-2:20) - Chorus 2 계속
+Dynamic wide shots montage through Seoul: Lotte Tower, Korean convenience stores with neon signs, modern Korean architecture. Quick cuts maintaining distance from subject. Building emotional intensity with contemporary Korean urban cinematography and ballad video styling.
+
+# 프롬프트 15 (2:20-2:30) - 마지막 Chorus
+Wide shot approaching Korean residential complex or modern apartment building. Him walking slowly with determination. Korean urban landscape surrounds him. Camera maintains cinematic distance, building anticipation with modern K-ballad video aesthetics and Seoul cityscape backdrop.
+
+# 프롬프트 16 (2:30-2:44) - 엔딩 (14초)
+Final wide cinematic shot: him at apartment entrance with Seoul cityscape panorama in background. Golden hour lighting over modern Korean skyline. Camera slowly pulls back revealing the vastness of Seoul around his small but determined figure. Fade to black with contemporary K-ballad video conclusion.

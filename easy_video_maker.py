@@ -1201,10 +1201,10 @@ class EasyVideoMaker:
             return None
 
 
-def read_batch_prompts_file() -> Optional[list]:
-    """batch_prompts.txt 파일에서 여러 프롬프트 읽기"""
+def read_batch_prompts_file(file_path: str = "batch_prompts.txt") -> Optional[list]:
+    """프롬프트 파일에서 여러 프롬프트 읽기"""
     try:
-        with open("batch_prompts.txt", "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
         
         prompts = []
@@ -1215,18 +1215,18 @@ def read_batch_prompts_file() -> Optional[list]:
                 prompts.append(line)
         
         if prompts:
-            print(f"📝 {len(prompts)}개의 프롬프트를 읽었습니다.")
+            console.print(f"[bold green]📝 {len(prompts)}개의 프롬프트를 읽었습니다.[/bold green]")
             return prompts
         else:
-            print("⚠️  경고: batch_prompts.txt 파일에 유효한 프롬프트가 없습니다.")
+            console.print(f"[bold yellow]⚠️ 경고: {file_path} 파일에 유효한 프롬프트가 없습니다.[/bold yellow]")
             return None
             
     except FileNotFoundError:
-        print("❌ 오류: batch_prompts.txt 파일을 찾을 수 없습니다.")
-        print("📝 batch_prompts.txt 파일을 만들고 각 줄에 프롬프트를 작성해주세요.")
+        console.print(f"[bold red]❌ 오류: {file_path} 파일을 찾을 수 없습니다.[/bold red]")
+        console.print("[bold yellow]📝 프롬프트 파일을 만들고 각 줄에 프롬프트를 작성해주세요.[/bold yellow]")
         return None
     except Exception as e:
-        print(f"❌ 오류: batch_prompts.txt 파일 읽기 실패 - {e}")
+        console.print(f"[bold red]❌ 오류: {file_path} 파일 읽기 실패 - {e}[/bold red]")
         return None
 
 def read_prompt_file() -> str:
@@ -1247,6 +1247,86 @@ def read_prompt_file() -> str:
         print(f"❌ 오류: prompt.txt 파일 읽기 실패 - {e}")
         return None
 
+
+def select_prompt_file_from_folder() -> Optional[str]:
+    """prompt_lists 폴더에서 프롬프트 파일 선택"""
+    prompt_lists_dir = "prompt_lists"
+    
+    # prompt_lists 폴더가 없으면 생성
+    if not os.path.exists(prompt_lists_dir):
+        os.makedirs(prompt_lists_dir)
+        console.print(Panel(
+            f"[bold blue]📁 {prompt_lists_dir} 폴더를 생성했습니다.[/bold blue]\n\n"
+            "[bold yellow]💡 이 폴더에 프롬프트 파일(.txt)을 넣고 다시 실행하세요.[/bold yellow]",
+            title="[bold blue]폴더 생성[/bold blue]",
+            border_style="blue"
+        ))
+        return None
+    
+    # 텍스트 파일 찾기
+    prompt_files = []
+    for file in os.listdir(prompt_lists_dir):
+        if file.endswith('.txt'):
+            prompt_files.append(file)
+    
+    if not prompt_files:
+        console.print(Panel(
+            f"[bold red]❌ {prompt_lists_dir} 폴더에 프롬프트 파일(.txt)이 없습니다.[/bold red]\n\n"
+            "[bold yellow]💡 프롬프트 파일을 생성하고 다시 실행하세요.[/bold yellow]",
+            title="[bold red]프롬프트 파일 없음[/bold red]",
+            border_style="red"
+        ))
+        return None
+    
+    # 프롬프트 파일 목록을 Table로 표시
+    prompt_table = Table(title=f"[bold blue]📁 {prompt_lists_dir} 폴더의 프롬프트 파일들[/bold blue]", show_header=True, header_style="bold magenta")
+    prompt_table.add_column("번호", style="cyan", width=6)
+    prompt_table.add_column("파일명", style="white", width=30)
+    prompt_table.add_column("크기", style="green", width=10)
+    prompt_table.add_column("프롬프트 수", style="yellow", width=12)
+    
+    for i, file in enumerate(prompt_files, 1):
+        file_path = os.path.join(prompt_lists_dir, file)
+        file_size = os.path.getsize(file_path) / 1024  # KB
+        
+        # 프롬프트 수 계산
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            prompt_count = len([line for line in lines if line.strip() and not line.strip().startswith("#")])
+        except:
+            prompt_count = "?"
+        
+        prompt_table.add_row(str(i), file, f"{file_size:.1f}KB", str(prompt_count))
+    
+    # 기본 batch_prompts.txt 옵션 추가
+    prompt_table.add_row(str(len(prompt_files) + 1), "[yellow]batch_prompts.txt (기본)[/yellow]", "", "")
+    
+    console.print(prompt_table)
+    console.print()
+    
+    # 사용자 선택
+    while True:
+        try:
+            choice = Prompt.ask(f"프롬프트 파일을 선택하세요", choices=[str(i) for i in range(1, len(prompt_files) + 2)])
+            
+            choice_num = int(choice)
+            
+            if choice_num == len(prompt_files) + 1:
+                # 기본 batch_prompts.txt 사용
+                console.print("[bold yellow]📝 기본 batch_prompts.txt 파일을 사용합니다[/bold yellow]")
+                return "batch_prompts.txt"
+            elif 1 <= choice_num <= len(prompt_files):
+                selected_file = prompt_files[choice_num - 1]
+                selected_path = os.path.join(prompt_lists_dir, selected_file)
+                console.print(f"[bold green]✅ 선택된 프롬프트 파일:[/bold green] {selected_file}")
+                return selected_path
+                
+        except ValueError:
+            console.print("[bold red]❌ 숫자를 입력하세요.[/bold red]")
+        except KeyboardInterrupt:
+            console.print("\n[bold red]❌ 사용자가 취소했습니다.[/bold red]")
+            return None
 
 def select_image_from_folder() -> Optional[str]:
     """images 폴더에서 이미지 선택"""
@@ -1382,18 +1462,30 @@ def show_config_links(mode="normal"):
     if mode == "batch" or mode == "chain":
         prompt_path = os.path.abspath("batch_prompts.txt")
         prompt_label = "Batch Prompts 파일"
+        prompt_lists_path = os.path.abspath("prompt_lists")
+        
+        console.print(Panel(
+            f"[bold yellow]⚙️ 설정 파일 수정하기:[/bold yellow]\n\n"
+            f"[cyan]Config 파일:[/cyan] [link=file://{config_path}]{config_path}[/link]\n"
+            f"[cyan]{prompt_label}:[/cyan] [link=file://{prompt_path}]{prompt_path}[/link]\n"
+            f"[cyan]Prompt Lists 폴더:[/cyan] [link=file://{prompt_lists_path}]{prompt_lists_path}[/link]\n\n"
+            "[dim]위 링크를 클릭하면 파일을 열 수 있습니다.[/dim]",
+            title="[bold blue]📝 설정 파일 링크[/bold blue]",
+            border_style="blue"
+        ))
     else:
         prompt_path = os.path.abspath("prompt.txt")
         prompt_label = "Prompt 파일"
+        
+        console.print(Panel(
+            f"[bold yellow]⚙️ 설정 파일 수정하기:[/bold yellow]\n\n"
+            f"[cyan]Config 파일:[/cyan] [link=file://{config_path}]{config_path}[/link]\n"
+            f"[cyan]{prompt_label}:[/cyan] [link=file://{prompt_path}]{prompt_path}[/link]\n\n"
+            "[dim]위 링크를 클릭하면 파일을 열 수 있습니다.[/dim]",
+            title="[bold blue]📝 설정 파일 링크[/bold blue]",
+            border_style="blue"
+        ))
     
-    console.print(Panel(
-        f"[bold yellow]⚙️ 설정 파일 수정하기:[/bold yellow]\n\n"
-        f"[cyan]Config 파일:[/cyan] [link=file://{config_path}]{config_path}[/link]\n"
-        f"[cyan]{prompt_label}:[/cyan] [link=file://{prompt_path}]{prompt_path}[/link]\n\n"
-        "[dim]위 링크를 클릭하면 파일을 열 수 있습니다.[/dim]",
-        title="[bold blue]📝 설정 파일 링크[/bold blue]",
-        border_style="blue"
-    ))
     console.print()
 
 def create_example_files():
@@ -1555,8 +1647,14 @@ def main():
                     ))
                     return
             
+            # 배치 프롬프트 파일 선택
+            console.print("[bold green]📝 프롬프트 파일 선택:[/bold green]")
+            selected_prompt_file = select_prompt_file_from_folder()
+            if not selected_prompt_file:
+                return
+            
             # 배치 프롬프트 읽기
-            batch_prompts = read_batch_prompts_file()
+            batch_prompts = read_batch_prompts_file(selected_prompt_file)
             if not batch_prompts:
                 return
             
@@ -1669,8 +1767,14 @@ def main():
                     print("💡 사용법: python easy_video_maker.py --chain [시작번호] [종료번호]")
                     return
             
+            # 배치 프롬프트 파일 선택
+            console.print("[bold green]📝 프롬프트 파일 선택:[/bold green]")
+            selected_prompt_file = select_prompt_file_from_folder()
+            if not selected_prompt_file:
+                return
+            
             # 배치 프롬프트 읽기
-            batch_prompts = read_batch_prompts_file()
+            batch_prompts = read_batch_prompts_file(selected_prompt_file)
             if not batch_prompts:
                 return
             

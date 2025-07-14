@@ -1,0 +1,57 @@
+## AI 뮤직 비디오 생성 프롬프트 - 한국 배경 (총 2분 43초 / 16개 프롬프트)
+
+### **[확실] 시간 구성 분석**
+#- 전주: 0:00-0:30 (30초)
+#- 가사 부분: 0:30-2:44 (2분 14초)
+#- 총 길이: 2분 43초
+
+### **전주 구간 (0:00-0:30)**
+
+#**프롬프트 1 (0:00-0:10) - 전주 1**
+Cinematic establishing shot of Seoul at dawn. Empty streets in Hongdae or Gangnam with soft morning mist. Traditional Korean buildings mixed with modern skyscrapers. A young Korean man visible in the distance walking slowly. Gentle camera movement, warm golden lighting.
+
+#**프롬프트 2 (0:10-0:20) - 전주 2**
+Close-up shots in a Korean apartment: coffee being poured into a Korean ceramic cup, morning light through apartment windows, smartphone showing KakaoTalk with no new messages. Slow, deliberate movements. Korean home interior details visible. Soft focus and warm color palette.
+
+#**프롬프트 3 (0:20-0:30) - 전주 3**
+Young Korean man in his 20s getting ready, looking in the bathroom mirror with a mix of hope and anxiety. Putting on a casual Korean street fashion outfit. Final moments before heading out. Modern Korean apartment setting. Camera focuses on emotional preparation.
+
+### **가사 구간 (0:30-2:44)**
+#**프롬프트 4 (0:30-0:40) - Verse 시작**
+Handsome young Korean man sitting alone in a trendy Seoul café (like those in Garosu-gil or Itaewon). Looking anxiously at the glass door entrance. Korean café interior with hangul signage visible. Empty chair across from him. Camera slowly zooms in showing anticipation.
+
+#**프롬프트 5 (0:40-0:50) - Verse 계속**
+Close-up of his hands nervously tapping on wooden table, then stopping suddenly. The café door opening - different Korean people entering (office workers, students, couples). Each time he looks up hopefully, then subtle disappointment. Korean urban fashion and styles visible.
+
+#**프롬프트 6 (0:50-1:00) - Verse 마무리**
+Artistic shots in the Korean café: wall clock ticking, iced americano getting watery, Korean people walking by the window in Myeongdong or Hongdae street. His face showing the cycle of hope and disappointment with each footstep approaching.
+
+#**프롬프트 7 (1:00-1:10) - Bridge 1**
+Wide shot showing him alone in the café while Korean couples and friend groups enjoy time together. Korean café culture visible - people studying, dating, chatting. Contemplative mood emphasizing solitude against bustling Seoul social life.
+
+#**프롬프트 8 (1:10-1:20) - Bridge 2**
+Slow motion sequence: the Korean man touching his heart, looking out at Hangang Park or Seoul street where couples are walking. Reflective café window showing multiple angles. Korean cityscape visible in background. Deep emotional contemplation.
+
+#**프롬프트 9 (1:20-1:30) - Chorus 1 시작**
+The Korean man standing up with determination, putting on a Korean brand jacket or coat. First steps out of the café onto a Seoul street (Gangnam, Hongdae, or Myeongdong). Camera follows from behind as he begins walking with purpose through Korean urban landscape.
+
+#**프롬프트 10 (1:30-1:40) - Chorus 1 계속**
+Walking montage through iconic Seoul locations: crossing at Gangnam Station, walking along Cheonggyecheon stream, or through Bukchon Hanok Village. Korean signage and architecture visible. Each step showing growing confidence against beautiful Korean backdrop.
+
+#**프롬프트 11 (1:40-1:50) - Chorus 1 마무리**
+Artistic shots of his footsteps on Korean surfaces: wet Seoul pavement after rain, autumn leaves in Korean park, stone steps of Korean temple or palace. Macro and wide shots creating visual rhythm with Korean cultural elements.
+
+#**프롬프트 12 (1:50-2:00) - Bridge 반복**
+Brief pause in Hangang Park or Olympic Park. The Korean man looking at his Samsung phone showing KakaoTalk, then putting it away with resolve. Korean cherry blossoms or autumn foliage around him. Korean couples visible in soft background focus.
+
+#**프롬프트 13 (2:00-2:10) - Chorus 2 시작**
+Renewed walking with confidence through Seoul. Beautiful Korean sunset lighting over Han River or N Seoul Tower visible in background. His silhouette against Korean skyline. Camera movements becoming more fluid with Korean cityscape backdrop.
+
+#**프롬프트 14 (2:10-2:20) - Chorus 2 계속**
+Fast-paced montage through Seoul: quick cuts of determined expressions, walking past Korean convenience stores, neon Korean signs, Lotte Tower or other Seoul landmarks. Building intensity with dynamic Korean urban cinematography.
+
+#**프롬프트 15 (2:20-2:30) - 마지막 Chorus**
+Approaching destination in Korean residential area or apartment complex. Slowing down, taking deep breath. Hand reaching for Korean apartment door handle or preparing to call on Korean smartphone. Korean building entrance visible. Beautiful anticipation building.
+
+#**프롬프트 16 (2:30-2:44) - 엔딩 (14초)**
+Final resolution: gentle knock on Korean apartment door or KakaoTalk call being made. Soft golden hour lighting over Seoul cityscape. The young Korean man's face showing peaceful determination and pure love. Camera pulls back showing Korean urban landscape. Gentle fade with hope.

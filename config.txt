@@ -6,7 +6,7 @@
 resolution=1080p
 # ratio=16:9
 # ratio=9:16
-duration=5
+duration=10
 fps=24
 watermark=false
 seed=-1

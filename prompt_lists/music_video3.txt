@@ -1,0 +1,58 @@
+# AI 뮤직 비디오 생성 프롬프트 - Papercraft World 스타일 (총 2분 43초 / 16개 프롬프트)
+
+# 시간 구성 분석
+# 전주: 0:00-0:30 (30초)
+# 가사 부분: 0:30-2:44 (2분 14초)  
+# 총 길이: 2분 43초
+
+# 전주 구간 (0:00-0:30)
+
+# 프롬프트 1 (0:00-0:10) - 전주 1
+Papercraft world establishing shot of Seoul skyline at dawn. Paper-cut N Seoul Tower and cardboard skyscrapers with layered paper clouds. Soft paper-textured lighting with warm colors. Stop-motion style camera movement revealing the miniature paper city. Handmade craft aesthetic with visible paper edges and folds.
+
+# 프롬프트 2 (0:10-0:20) - 전주 2
+Papercraft Korean apartment interior made from colored cardboard and paper. Young Korean man figure crafted from paper sitting by paper windows overlooking miniature Seoul. Layered paper cutout design with depth. Camera maintains distance showing the charming handmade paper world details and textures.
+
+# 프롬프트 3 (0:20-0:30) - 전주 3
+Paper-cut Korean man figure preparing to leave papercraft apartment. Cardboard furniture and paper decorations visible. He moves with stop-motion papercraft animation style. Camera stays back showing the entire paper diorama scene. Soft lighting emphasizing paper texture and handcrafted details.
+
+# 가사 구간 (0:30-2:44)
+
+# 프롬프트 4 (0:30-0:40) - Verse 시작
+Papercraft Seoul café interior made from layered cardboard and colored paper. Paper-cut Korean man sitting alone at paper table. Paper windows showing miniature street outside. Everything crafted from paper with visible folds and cuts. His small paper figure appears vulnerable in the handmade paper café space.
+
+# 프롬프트 5 (0:40-0:50) - Verse 계속
+Paper café entrance with cardboard door opening and closing. Paper people figures entering and leaving with stop-motion movement. Korean man remains still as paper cutout. Contemporary paper fashion visible on miniature figures. Camera maintains distance showing the charming papercraft world details and textures.
+
+# 프롬프트 6 (0:50-1:00) - Verse 마무리
+View through papercraft café window from outside. Paper raindrops falling on cardboard glass. Paper Korean man visible inside while miniature paper people walk past on paper street. Layered paper depth creating Seoul street scene. Handmade aesthetic with visible craft techniques and paper edges.
+
+# 프롬프트 7 (1:00-1:10) - Bridge 1
+Wide papercraft café interior showing paper man alone among other paper couples and groups. High angle view of the paper diorama emphasizing isolation. Warm paper lighting contrasts with cooler paper tones outside. Stop-motion papercraft animation style with handmade charm and visible craft details.
+
+# 프롬프트 8 (1:10-1:20) - Bridge 2
+Paper-cut man by cardboard window with miniature papercraft Hangang Park visible outside. Paper couples walking in soft focus made from layered paper cutouts. His reflection created with translucent paper on glass. Artistic paper depth and handcrafted Korean papercraft world details.
+
+# 프롬프트 9 (1:20-1:30) - Chorus 1 시작
+Paper man exiting papercraft café onto Seoul paper street. Camera follows from across the miniature paper road showing his small figure against cardboard Korean buildings. Paper signage and origami architectural elements. Beginning of journey through charming handmade papercraft Seoul world.
+
+# 프롬프트 10 (1:30-1:40) - Chorus 1 계속
+Paper man walking through iconic papercraft Seoul locations: cardboard Gangnam crossing, paper Cheonggyecheon stream. Camera maintains distance showing him as part of the larger paper Korean cityscape. Layered paper skyscrapers and traditional paper elements blend in handcrafted miniature world.
+
+# 프롬프트 11 (1:40-1:50) - Chorus 1 마무리
+Artistic wide shots of paper man's journey through papercraft Seoul. His small figure moving through vast paper Korean landscape. Cardboard steps of paper Bukchon village or paper Seoul plazas. Camera work emphasizes scale and emotional journey through handmade paper world with visible craft textures.
+
+# 프롬프트 12 (1:50-2:00) - Bridge 반복
+Papercraft Hangang Park with paper man sitting on cardboard bench. Paper Seoul skyline in background made from layered cardboard cutouts. Paper cherry blossoms or autumn leaves scattered around. Other paper couples visible in distance. Contemplative pause in charming handmade paper world.
+
+# 프롬프트 13 (2:00-2:10) - Chorus 2 시작
+Paper man walking with renewed purpose through papercraft Seoul. Paper sunset lighting over cardboard Han River. Paper N Seoul Tower visible in background. His paper silhouette against handmade Seoul skyline. Stop-motion papercraft animation with emotional crescendo building through craft aesthetics.
+
+# 프롬프트 14 (2:10-2:20) - Chorus 2 계속
+Dynamic papercraft montage through Seoul: cardboard Lotte Tower, paper convenience stores with miniature neon signs, layered paper architecture. Quick cuts maintaining distance from paper subject. Building emotional intensity with handcrafted Korean urban papercraft world and visible paper textures.
+
+# 프롬프트 15 (2:20-2:30) - 마지막 Chorus
+Paper man approaching cardboard Korean residential complex. Walking slowly with determination through paper urban landscape. Camera maintains distance building anticipation with papercraft aesthetics and handmade Seoul cityscape backdrop. Visible paper folds and craft details throughout the scene.
+
+# 프롬프트 16 (2:30-2:44) - 엔딩 (14초)
+Final papercraft shot: paper man at cardboard apartment entrance with layered paper Seoul cityscape panorama. Warm paper-textured lighting over handmade Korean skyline. Camera slowly pulls back revealing the complete papercraft world around his small determined paper figure. Fade to black with charming handcrafted conclusion.
