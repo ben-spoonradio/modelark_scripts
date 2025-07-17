@@ -273,7 +273,11 @@ class AudioVideoMerger:
             
             # 자막 필터 명령어 구성
             # subtitles 필터 사용 (SRT 파일을 동영상에 직접 합성)
-            subtitle_filter = f"subtitles='{escaped_subtitle_path}':force_style='FontName=NanumGothic,FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3,Outline=2,Shadow=1,MarginV=20'"
+            # ASS/SSA 색상 형식: &HAABBGGRR (알파, 블루, 그린, 레드)
+            # PrimaryColour: 흰색 글자 (&H00FFFFFF)
+            # OutlineColour: 검정 아웃라인 (&H00000000)
+            # BackColour: 투명 배경 (&H80000000 -> &HFF000000 완전 투명)
+            subtitle_filter = f"subtitles='{escaped_subtitle_path}':force_style='FontName=NanumGothic,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BackColour=&HFF000000,BorderStyle=1,Outline=2,Shadow=0,MarginV=20'"
             
             cmd = [
                 "ffmpeg", "-i", video_path,
