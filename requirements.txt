@@ -2,3 +2,4 @@ requests>=2.25.1
 Pillow>=8.0.0
 opencv-python>=4.5.0
 rich>=10.0.0
+openai-whisper>=20231117

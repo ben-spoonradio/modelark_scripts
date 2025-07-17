@@ -28,6 +28,8 @@ from rich.table import Table
 from rich.prompt import Prompt, Confirm
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 from rich.text import Text
+import tempfile
+import re
 
 # Rich Console 초기화
 console = Console()
@@ -44,6 +46,9 @@ class AudioVideoMerger:
         
         # 필요한 폴더 생성
         self.create_directories()
+        
+        # Whisper 설치 확인
+        self.whisper_available = self.check_whisper()
     
     def create_directories(self):
         """필요한 폴더들 생성"""
@@ -60,6 +65,14 @@ class AudioVideoMerger:
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
     
+    def check_whisper(self) -> bool:
+        """Whisper 설치 확인"""
+        try:
+            import whisper
+            return True
+        except ImportError:
+            return False
+    
     def show_ffmpeg_install_guide(self):
         """ffmpeg 설치 안내"""
         console.print(Panel(
@@ -71,6 +84,17 @@ class AudioVideoMerger:
             "[bold yellow]💡 ffmpeg 설치 후 다시 실행해주세요.[/bold yellow]",
             title="[bold red]ffmpeg 필요[/bold red]",
             border_style="red"
+        ))
+    
+    def show_whisper_install_guide(self):
+        """Whisper 설치 안내"""
+        console.print(Panel(
+            "[bold yellow]🎤 자막 생성 기능을 사용하려면 Whisper 설치가 필요합니다.[/bold yellow]\n\n"
+            "[bold yellow]설치 방법:[/bold yellow]\n"
+            "• pip install openai-whisper\n\n"
+            "[bold cyan]💡 Whisper 없이도 기본 음성 합치기 기능은 사용 가능합니다.[/bold cyan]",
+            title="[bold yellow]Whisper 권장[/bold yellow]",
+            border_style="yellow"
         ))
     
     def get_video_files(self) -> list:
@@ -185,6 +209,93 @@ class AudioVideoMerger:
             return float(data["format"]["duration"])
         except:
             return 0.0
+    
+    def transcribe_audio(self, audio_path: str) -> dict:
+        """오디오 파일에서 텍스트 추출"""
+        if not self.whisper_available:
+            console.print("[bold red]❌ Whisper가 설치되지 않아 자막 생성을 건너뜁니다.[/bold red]")
+            return None
+            
+        try:
+            import whisper
+            
+            console.print("[bold yellow]🎤 음성 인식 시작...[/bold yellow]")
+            
+            # Whisper 모델 로드 (base 모델 사용)
+            model = whisper.load_model("base")
+            
+            # 음성 인식 수행
+            result = model.transcribe(audio_path, language="ko")
+            
+            console.print(f"[bold green]✅ 음성 인식 완료: {len(result['segments'])}개 세그먼트[/bold green]")
+            
+            return result
+            
+        except Exception as e:
+            console.print(f"[bold red]❌ 음성 인식 오류: {str(e)}[/bold red]")
+            return None
+    
+    def create_subtitle_file(self, transcription: dict, subtitle_path: str) -> bool:
+        """자막 파일 생성 (SRT 형식)"""
+        if not transcription or not transcription.get('segments'):
+            return False
+            
+        try:
+            with open(subtitle_path, 'w', encoding='utf-8') as f:
+                for i, segment in enumerate(transcription['segments'], 1):
+                    start_time = self.format_time(segment['start'])
+                    end_time = self.format_time(segment['end'])
+                    text = segment['text'].strip()
+                    
+                    f.write(f"{i}\n")
+                    f.write(f"{start_time} --> {end_time}\n")
+                    f.write(f"{text}\n\n")
+            
+            console.print(f"[bold green]✅ 자막 파일 생성: {subtitle_path}[/bold green]")
+            return True
+            
+        except Exception as e:
+            console.print(f"[bold red]❌ 자막 파일 생성 오류: {str(e)}[/bold red]")
+            return False
+    
+    def format_time(self, seconds: float) -> str:
+        """시간을 SRT 형식으로 변환"""
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        seconds = seconds % 60
+        return f"{hours:02d}:{minutes:02d}:{seconds:06.3f}".replace('.', ',')
+    
+    def add_subtitles_to_video(self, video_path: str, subtitle_path: str, output_path: str) -> bool:
+        """동영상에 자막 추가"""
+        try:
+            # 자막 스타일 설정
+            subtitle_style = (
+                "FontName=Arial,FontSize=24,PrimaryColour=&H00ffffff,SecondaryColour=&H00000000,"
+                "OutlineColour=&H00000000,BackColour=&H80000000,Bold=0,Italic=0,Underline=0,"
+                "StrikeOut=0,ScaleX=100,ScaleY=100,Spacing=0,Angle=0,BorderStyle=1,Outline=2,"
+                "Shadow=1,Alignment=2,MarginL=30,MarginR=30,MarginV=30,Encoding=1"
+            )
+            
+            cmd = [
+                "ffmpeg", "-i", video_path, "-vf", 
+                f"subtitles={subtitle_path}:force_style='{subtitle_style}'",
+                "-c:a", "copy", "-y", output_path
+            ]
+            
+            console.print("[bold yellow]🎬 자막 추가 중...[/bold yellow]")
+            
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                console.print("[bold green]✅ 자막 추가 완료[/bold green]")
+                return True
+            else:
+                console.print(f"[bold red]❌ 자막 추가 실패: {result.stderr}[/bold red]")
+                return False
+                
+        except Exception as e:
+            console.print(f"[bold red]❌ 자막 추가 오류: {str(e)}[/bold red]")
+            return False
     
     def merge_audio_video(self, video_path: str, audio_path: str, output_path: str, audio_mode: str = "replace") -> bool:
         """동영상과 음성 파일 합치기"""
@@ -302,6 +413,13 @@ class AudioVideoMerger:
         else:
             console.print("[bold cyan]🔄 기존 음성과 새 음성을 믹싱합니다.[/bold cyan]")
         
+        # 자막 생성 옵션
+        add_subtitles = False
+        if self.whisper_available:
+            add_subtitles = Confirm.ask("\n[bold yellow]🎤 음성에서 자막을 생성하시겠습니까?[/bold yellow]", default=False)
+        else:
+            self.show_whisper_install_guide()
+        
         # 출력 파일명 생성
         video_name = Path(video_path).stem
         audio_name = Path(audio_path).stem
@@ -317,14 +435,47 @@ class AudioVideoMerger:
         # 합치기 실행
         success = self.merge_audio_video(video_path, audio_path, output_path, audio_mode)
         
+        # 자막 처리
+        subtitle_path = None
+        final_output_path = output_path
+        
+        if success and add_subtitles:
+            # 음성 인식 및 자막 생성
+            transcription = self.transcribe_audio(audio_path)
+            
+            if transcription:
+                # 자막 파일 생성
+                subtitle_filename = f"{video_name}_with_{audio_name}_{timestamp}.srt"
+                subtitle_path = os.path.join(self.output_dir, subtitle_filename)
+                
+                if self.create_subtitle_file(transcription, subtitle_path):
+                    # 자막이 포함된 최종 동영상 생성
+                    final_output_filename = f"{video_name}_with_{audio_name}_subtitled_{timestamp}.mp4"
+                    final_output_path = os.path.join(self.output_dir, final_output_filename)
+                    
+                    if self.add_subtitles_to_video(output_path, subtitle_path, final_output_path):
+                        # 임시 파일 삭제 (자막 없는 버전)
+                        os.remove(output_path)
+                        success = True
+                    else:
+                        # 자막 추가 실패시 기본 버전 유지
+                        final_output_path = output_path
+        
         if success:
             # 결과 표시
-            file_size = os.path.getsize(output_path) / (1024 * 1024)  # MB
+            file_size = os.path.getsize(final_output_path) / (1024 * 1024)  # MB
+            final_filename = os.path.basename(final_output_path)
+            
+            result_text = f"[bold green]✅ 성공적으로 완료되었습니다![/bold green]\n\n"
+            result_text += f"[cyan]출력 파일:[/cyan] {final_filename}\n"
+            result_text += f"[cyan]파일 크기:[/cyan] {file_size:.1f}MB\n"
+            result_text += f"[cyan]저장 위치:[/cyan] {final_output_path}\n"
+            
+            if subtitle_path and os.path.exists(subtitle_path):
+                result_text += f"[cyan]자막 파일:[/cyan] {os.path.basename(subtitle_path)}\n"
+            
             console.print(Panel(
-                f"[bold green]✅ 성공적으로 완료되었습니다![/bold green]\n\n"
-                f"[cyan]출력 파일:[/cyan] {output_filename}\n"
-                f"[cyan]파일 크기:[/cyan] {file_size:.1f}MB\n"
-                f"[cyan]저장 위치:[/cyan] {output_path}",
+                result_text,
                 title="[bold green]완료[/bold green]",
                 border_style="green"
             ))
