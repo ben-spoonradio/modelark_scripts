@@ -268,33 +268,158 @@ class AudioVideoMerger:
     def add_subtitles_to_video(self, video_path: str, subtitle_path: str, output_path: str) -> bool:
         """동영상에 자막 추가"""
         try:
-            # 자막 스타일 설정
-            subtitle_style = (
-                "FontName=Arial,FontSize=24,PrimaryColour=&H00ffffff,SecondaryColour=&H00000000,"
-                "OutlineColour=&H00000000,BackColour=&H80000000,Bold=0,Italic=0,Underline=0,"
-                "StrikeOut=0,ScaleX=100,ScaleY=100,Spacing=0,Angle=0,BorderStyle=1,Outline=2,"
-                "Shadow=1,Alignment=2,MarginL=30,MarginR=30,MarginV=30,Encoding=1"
-            )
+            # 경로에서 특수 문자 이스케이프 처리
+            escaped_subtitle_path = subtitle_path.replace('\\', '/').replace(':', '\\:')
+            
+            # 자막 필터 명령어 구성
+            # subtitles 필터 사용 (SRT 파일을 동영상에 직접 합성)
+            subtitle_filter = f"subtitles='{escaped_subtitle_path}':force_style='FontName=NanumGothic,FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,BorderStyle=3,Outline=2,Shadow=1,MarginV=20'"
             
             cmd = [
-                "ffmpeg", "-i", video_path, "-vf", 
-                f"subtitles={subtitle_path}:force_style='{subtitle_style}'",
-                "-c:a", "copy", "-y", output_path
+                "ffmpeg", "-i", video_path,
+                "-vf", subtitle_filter,
+                "-c:v", "libx264",  # 비디오 재인코딩 필요
+                "-preset", "fast",
+                "-c:a", "copy",
+                "-y", output_path
             ]
             
             console.print("[bold yellow]🎬 자막 추가 중...[/bold yellow]")
+            console.print(f"[dim]자막 파일: {subtitle_path}[/dim]")
             
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.returncode == 0:
-                console.print("[bold green]✅ 자막 추가 완료[/bold green]")
-                return True
-            else:
-                console.print(f"[bold red]❌ 자막 추가 실패: {result.stderr}[/bold red]")
-                return False
+            # Progress 표시와 함께 실행
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TimeElapsedColumn(),
+                console=console
+            ) as progress:
+                task = progress.add_task("자막 합성 중...", total=100)
+                
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                # 진행률 업데이트
+                for i in range(0, 101, 10):
+                    if process.poll() is not None:
+                        break
+                    progress.update(task, completed=i)
+                    time.sleep(0.5)
+                
+                stdout, stderr = process.communicate()
+                progress.update(task, completed=100)
+                
+                if process.returncode == 0:
+                    console.print("[bold green]✅ 자막 추가 완료[/bold green]")
+                    return True
+                else:
+                    console.print(f"[bold red]❌ 자막 추가 실패:[/bold red]\n{stderr}")
+                    return False
                 
         except Exception as e:
             console.print(f"[bold red]❌ 자막 추가 오류: {str(e)}[/bold red]")
+            return False
+    
+    def show_subtitle_preview(self, subtitle_path: str) -> None:
+        """자막 파일 미리보기"""
+        try:
+            with open(subtitle_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # 처음 5개 자막만 표시
+            lines = content.strip().split('\n\n')
+            preview_lines = lines[:5]
+            
+            console.print(Panel(
+                '\n\n'.join(preview_lines) + 
+                (f"\n\n[dim]... 외 {len(lines)-5}개 자막[/dim]" if len(lines) > 5 else ""),
+                title=f"[bold blue]📝 자막 미리보기 (총 {len(lines)}개)[/bold blue]",
+                border_style="blue"
+            ))
+        except Exception as e:
+            console.print(f"[bold red]❌ 자막 미리보기 오류: {str(e)}[/bold red]")
+    
+    def edit_subtitle_file(self, subtitle_path: str) -> bool:
+        """자막 파일 간단 편집"""
+        try:
+            # 현재 자막 읽기
+            with open(subtitle_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            console.print("\n[bold yellow]✏️ 자막 편집 옵션:[/bold yellow]")
+            console.print("1. 전체 자막에서 특정 단어 찾기/바꾸기")
+            console.print("2. 자막 시간 전체 조정 (앞당기기/늦추기)")
+            console.print("3. 편집 건너뛰기")
+            
+            choice = Prompt.ask("선택", choices=["1", "2", "3"], default="3")
+            
+            if choice == "1":
+                # 찾기/바꾸기
+                find_text = Prompt.ask("\n찾을 텍스트")
+                if find_text in content:
+                    replace_text = Prompt.ask("바꿀 텍스트")
+                    content = content.replace(find_text, replace_text)
+                    
+                    with open(subtitle_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    
+                    console.print(f"[bold green]✅ '{find_text}' → '{replace_text}' 변경 완료[/bold green]")
+                    return True
+                else:
+                    console.print(f"[bold yellow]⚠️ '{find_text}'를 찾을 수 없습니다.[/bold yellow]")
+                    
+            elif choice == "2":
+                # 시간 조정
+                offset = Prompt.ask("\n시간 조정 (초 단위, 음수는 앞당기기)", default="0")
+                try:
+                    offset_seconds = float(offset)
+                    if offset_seconds != 0:
+                        # SRT 시간 형식 파싱 및 조정
+                        import re
+                        
+                        def adjust_time(match):
+                            time_str = match.group(0)
+                            # HH:MM:SS,mmm 형식 파싱
+                            parts = re.match(r'(\d{2}):(\d{2}):(\d{2}),(\d{3})', time_str)
+                            if parts:
+                                h, m, s, ms = map(int, parts.groups())
+                                total_seconds = h * 3600 + m * 60 + s + ms / 1000
+                                total_seconds += offset_seconds
+                                
+                                # 음수 방지
+                                if total_seconds < 0:
+                                    total_seconds = 0
+                                
+                                # 다시 포맷팅
+                                h = int(total_seconds // 3600)
+                                m = int((total_seconds % 3600) // 60)
+                                s = int(total_seconds % 60)
+                                ms = int((total_seconds % 1) * 1000)
+                                
+                                return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
+                            return time_str
+                        
+                        # 모든 시간 조정
+                        content = re.sub(r'\d{2}:\d{2}:\d{2},\d{3}', adjust_time, content)
+                        
+                        with open(subtitle_path, 'w', encoding='utf-8') as f:
+                            f.write(content)
+                        
+                        console.print(f"[bold green]✅ 자막 시간 {offset_seconds:+.1f}초 조정 완료[/bold green]")
+                        return True
+                except ValueError:
+                    console.print("[bold red]❌ 올바른 숫자를 입력하세요.[/bold red]")
+            
+            return False
+            
+        except Exception as e:
+            console.print(f"[bold red]❌ 자막 편집 오류: {str(e)}[/bold red]")
             return False
     
     def merge_audio_video(self, video_path: str, audio_path: str, output_path: str, audio_mode: str = "replace") -> bool:
@@ -449,16 +574,35 @@ class AudioVideoMerger:
                 subtitle_path = os.path.join(self.output_dir, subtitle_filename)
                 
                 if self.create_subtitle_file(transcription, subtitle_path):
-                    # 자막이 포함된 최종 동영상 생성
-                    final_output_filename = f"{video_name}_with_{audio_name}_subtitled_{timestamp}.mp4"
-                    final_output_path = os.path.join(self.output_dir, final_output_filename)
+                    # 자막 미리보기 표시
+                    self.show_subtitle_preview(subtitle_path)
                     
-                    if self.add_subtitles_to_video(output_path, subtitle_path, final_output_path):
-                        # 임시 파일 삭제 (자막 없는 버전)
-                        os.remove(output_path)
-                        success = True
+                    # 자막 파일 경로 안내
+                    console.print(f"\n[bold cyan]📁 자막 파일 위치:[/bold cyan] {subtitle_path}")
+                    console.print("[dim]자막 파일을 외부 편집기로 수정할 수 있습니다.[/dim]\n")
+                    
+                    # 자막 편집 여부 확인
+                    if Confirm.ask("[bold yellow]자막을 편집하시겠습니까?[/bold yellow]", default=False):
+                        self.edit_subtitle_file(subtitle_path)
+                        # 편집 후 다시 미리보기
+                        console.print("\n[bold yellow]📝 편집된 자막:[/bold yellow]")
+                        self.show_subtitle_preview(subtitle_path)
+                    
+                    # 자막 적용 여부 최종 확인
+                    if Confirm.ask("\n[bold yellow]이 자막을 동영상에 적용하시겠습니까?[/bold yellow]", default=True):
+                        # 자막이 포함된 최종 동영상 생성
+                        final_output_filename = f"{video_name}_with_{audio_name}_subtitled_{timestamp}.mp4"
+                        final_output_path = os.path.join(self.output_dir, final_output_filename)
+                        
+                        if self.add_subtitles_to_video(output_path, subtitle_path, final_output_path):
+                            # 임시 파일 삭제 (자막 없는 버전)
+                            os.remove(output_path)
+                            success = True
+                        else:
+                            # 자막 추가 실패시 기본 버전 유지
+                            final_output_path = output_path
                     else:
-                        # 자막 추가 실패시 기본 버전 유지
+                        console.print("[bold cyan]자막 적용을 건너뛰었습니다. 자막 파일은 별도로 저장되었습니다.[/bold cyan]")
                         final_output_path = output_path
         
         if success:
