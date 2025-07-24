@@ -115,6 +115,15 @@ class AudioVideoMerger:
                     audio_files.append(file)
         return sorted(audio_files)
     
+    def get_subtitle_files(self) -> list:
+        """output 폴더에서 자막 파일 목록 가져오기"""
+        subtitle_files = []
+        if os.path.exists(self.output_dir):
+            for file in os.listdir(self.output_dir):
+                if Path(file).suffix.lower() in {'.srt', '.ass', '.ssa', '.vtt'}:
+                    subtitle_files.append(os.path.join(self.output_dir, file))
+        return sorted(subtitle_files, key=lambda x: os.path.getmtime(x), reverse=True)  # 최신 파일 먼저
+    
     def select_video_file(self) -> str:
         """동영상 파일 선택"""
         video_files = self.get_video_files()
@@ -237,20 +246,24 @@ class AudioVideoMerger:
     
     def create_subtitle_file(self, transcription: dict, subtitle_path: str) -> bool:
         """자막 파일 생성 (SRT 형식)"""
-        if not transcription or not transcription.get('segments'):
-            return False
-            
         try:
             with open(subtitle_path, 'w', encoding='utf-8') as f:
-                for i, segment in enumerate(transcription['segments'], 1):
-                    start_time = self.format_time(segment['start'])
-                    end_time = self.format_time(segment['end'])
-                    text = segment['text'].strip()
-                    
-                    f.write(f"{i}\n")
-                    f.write(f"{start_time} --> {end_time}\n")
-                    f.write(f"{text}\n\n")
-            
+                subtitle_index = 1
+                
+                # 제목은 동영상에 직접 추가되므로 자막 파일에서는 제외
+                
+                # 음성 인식 자막 추가
+                if transcription and transcription.get('segments'):
+                    for segment in transcription['segments']:
+                        start_time = self.format_time(segment['start'])
+                        end_time = self.format_time(segment['end'])
+                        text = segment['text'].strip()
+                        
+                        f.write(f"{subtitle_index}\n")
+                        f.write(f"{start_time} --> {end_time}\n")
+                        f.write(f"{text}\n\n")
+                        subtitle_index += 1
+                
             console.print(f"[bold green]✅ 자막 파일 생성: {subtitle_path}[/bold green]")
             return True
             
@@ -272,11 +285,6 @@ class AudioVideoMerger:
             escaped_subtitle_path = subtitle_path.replace('\\', '/').replace(':', '\\:')
             
             # 자막 필터 명령어 구성
-            # subtitles 필터 사용 (SRT 파일을 동영상에 직접 합성)
-            # ASS/SSA 색상 형식: &HAABBGGRR (알파, 블루, 그린, 레드)
-            # PrimaryColour: 흰색 글자 (&H00FFFFFF)
-            # OutlineColour: 검정 아웃라인 (&H00000000)
-            # BackColour: 투명 배경 (&H80000000 -> &HFF000000 완전 투명)
             subtitle_filter = f"subtitles='{escaped_subtitle_path}':force_style='FontName=NanumGothic,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BackColour=&HFF000000,BorderStyle=1,Outline=2,Shadow=0,MarginV=20'"
             
             cmd = [
@@ -426,7 +434,44 @@ class AudioVideoMerger:
             console.print(f"[bold red]❌ 자막 편집 오류: {str(e)}[/bold red]")
             return False
     
-    def merge_audio_video(self, video_path: str, audio_path: str, output_path: str, audio_mode: str = "replace") -> bool:
+    def select_subtitle_file(self, subtitle_files: list) -> str:
+        """자막 파일 선택"""
+        if not subtitle_files:
+            console.print("[bold red]❌ 자막 파일이 없습니다.[/bold red]")
+            return None
+        
+        # 자막 파일 목록 표시
+        subtitle_table = Table(title="[bold blue]📝 자막 파일 선택[/bold blue]", show_header=True, header_style="bold magenta")
+        subtitle_table.add_column("번호", style="cyan", width=6)
+        subtitle_table.add_column("파일명", style="white", width=50)
+        subtitle_table.add_column("수정시간", style="green", width=20)
+        subtitle_table.add_column("크기", style="yellow", width=10)
+        
+        for i, file_path in enumerate(subtitle_files[:10], 1):  # 최대 10개만 표시
+            file_name = os.path.basename(file_path)
+            mod_time = time.strftime('%Y-%m-%d %H:%M', time.localtime(os.path.getmtime(file_path)))
+            file_size = os.path.getsize(file_path) / 1024  # KB
+            subtitle_table.add_row(str(i), file_name, mod_time, f"{file_size:.1f}KB")
+        
+        console.print(subtitle_table)
+        console.print()
+        
+        # 사용자 선택
+        while True:
+            try:
+                max_choice = min(10, len(subtitle_files))
+                choice = Prompt.ask("자막 파일을 선택하세요", choices=[str(i) for i in range(1, max_choice + 1)])
+                choice_num = int(choice)
+                selected_file = subtitle_files[choice_num - 1]
+                return selected_file
+            except (ValueError, IndexError):
+                console.print("[bold red]❌ 올바른 번호를 입력하세요.[/bold red]")
+            except KeyboardInterrupt:
+                console.print("\n[bold red]❌ 사용자가 취소했습니다.[/bold red]")
+                return None
+    
+    def merge_audio_video(self, video_path: str, audio_path: str, output_path: str, audio_mode: str = "replace", 
+                          music_title: str = None, artist_name: str = None, title_font_size: int = 64, artist_font_size: int = 36) -> bool:
         """동영상과 음성 파일 합치기"""
         try:
             # 파일 길이 확인
@@ -437,23 +482,89 @@ class AudioVideoMerger:
             console.print(f"[bold cyan]🎵 음성 길이:[/bold cyan] {audio_duration:.1f}초")
             
             # ffmpeg 명령어 구성
-            if audio_mode == "replace":
-                # 기존 음성 대체
-                cmd = [
-                    "ffmpeg", "-i", video_path, "-i", audio_path,
-                    "-c:v", "copy", "-c:a", "aac", "-map", "0:v:0", "-map", "1:a:0",
-                    "-shortest", "-y", output_path
+            if music_title:
+                # 제목이 있는 경우 drawtext 필터 추가
+                # 제목 텍스트 준비
+                title_text = music_title.replace("'", "\\'").replace(":", "\\:")
+                artist_text = artist_name.replace("'", "\\'").replace(":", "\\:") if artist_name else ""
+                
+                # drawtext 필터 구성 - 한글 지원 폰트 사용
+                # macOS 한글 폰트 경로들
+                korean_fonts = [
+                    "/System/Library/Fonts/AppleSDGothicNeo.ttc",  # Apple SD Gothic Neo
+                    "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # Apple Gothic
+                    "/Library/Fonts/NanumGothic.ttf",  # 나눔고딕 (설치된 경우)
+                    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",  # Arial Unicode
                 ]
-            else:  # mix
-                # 기존 음성과 믹싱
-                cmd = [
-                    "ffmpeg", "-i", video_path, "-i", audio_path,
-                    "-filter_complex", "[0:a][1:a]amix=inputs=2:duration=shortest[a]",
-                    "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac",
-                    "-y", output_path
-                ]
+                
+                # 사용 가능한 첫 번째 폰트 찾기
+                font_path = None
+                for font in korean_fonts:
+                    if os.path.exists(font):
+                        font_path = font
+                        break
+                
+                if not font_path:
+                    console.print("[bold yellow]⚠️ 한글 폰트를 찾을 수 없습니다. 기본 폰트를 사용합니다.[/bold yellow]")
+                    font_path = "/System/Library/Fonts/Helvetica.ttc"
+                
+                title_filter = (
+                    f"drawtext=text='{title_text}':fontfile='{font_path}':fontsize={title_font_size}:"
+                    f"fontcolor=white:borderw=4:bordercolor=black:x=(w-text_w)/2:y=(h/2-text_h)-30:"
+                    f"enable='between(t,0.5,5.5)':alpha='if(lt(t,1),t-0.5,if(gt(t,5),1-(t-5)/0.5,1))'"
+                )
+                
+                if artist_text:
+                    # 아티스트 이름 추가
+                    artist_filter = (
+                        f"drawtext=text='{artist_text}':fontfile='{font_path}':fontsize={artist_font_size}:"
+                        f"fontcolor=white:borderw=3:bordercolor=black:x=(w-text_w)/2:y=(h/2)+30:"
+                        f"enable='between(t,0.5,5.5)':alpha='if(lt(t,1),t-0.5,if(gt(t,5),1-(t-5)/0.5,1))'"
+                    )
+                    video_filter = f"{title_filter},{artist_filter}"
+                else:
+                    video_filter = title_filter
+                
+                if audio_mode == "replace":
+                    # 기존 음성 대체 + 제목
+                    cmd = [
+                        "ffmpeg", "-i", video_path, "-i", audio_path,
+                        "-filter_complex", f"[0:v]{video_filter}[v]",
+                        "-map", "[v]", "-map", "1:a:0",
+                        "-c:v", "libx264", "-preset", "fast", "-c:a", "aac",
+                        "-shortest", "-y", output_path
+                    ]
+                else:  # mix
+                    # 기존 음성과 믹싱 + 제목
+                    cmd = [
+                        "ffmpeg", "-i", video_path, "-i", audio_path,
+                        "-filter_complex", 
+                        f"[0:v]{video_filter}[v];[0:a][1:a]amix=inputs=2:duration=shortest[a]",
+                        "-map", "[v]", "-map", "[a]",
+                        "-c:v", "libx264", "-preset", "fast", "-c:a", "aac",
+                        "-y", output_path
+                    ]
+            else:
+                # 제목 없는 경우 (기존 코드)
+                if audio_mode == "replace":
+                    # 기존 음성 대체
+                    cmd = [
+                        "ffmpeg", "-i", video_path, "-i", audio_path,
+                        "-c:v", "copy", "-c:a", "aac", "-map", "0:v:0", "-map", "1:a:0",
+                        "-shortest", "-y", output_path
+                    ]
+                else:  # mix
+                    # 기존 음성과 믹싱
+                    cmd = [
+                        "ffmpeg", "-i", video_path, "-i", audio_path,
+                        "-filter_complex", "[0:a][1:a]amix=inputs=2:duration=shortest[a]",
+                        "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac",
+                        "-y", output_path
+                    ]
             
             console.print(f"[bold yellow]🔄 음성 합치기 시작...[/bold yellow]")
+            if music_title:
+                console.print(f"[bold cyan]🎵 제목 추가: {music_title}{' - ' + artist_name if artist_name else ''}[/bold cyan]")
             
             # 진행률 표시와 함께 ffmpeg 실행
             with Progress(
@@ -544,8 +655,44 @@ class AudioVideoMerger:
         
         # 자막 생성 옵션
         add_subtitles = False
+        music_title = None
+        artist_name = None
+        title_font_size = 64
+        artist_font_size = 36
+        
         if self.whisper_available:
             add_subtitles = Confirm.ask("\n[bold yellow]🎤 음성에서 자막을 생성하시겠습니까?[/bold yellow]", default=False)
+            
+            # 뮤직비디오 스타일 제목 추가 옵션 (자막과 별개로 물어봄)
+            if Confirm.ask("\n[bold yellow]🎵 뮤직비디오 스타일 제목을 추가하시겠습니까?[/bold yellow]", default=False):
+                music_title = Prompt.ask("[bold cyan]노래 제목[/bold cyan]")
+                artist_name = Prompt.ask("[bold cyan]아티스트 이름 (선택사항, Enter로 건너뛰기)[/bold cyan]", default="")
+                
+                # 폰트 크기 옵션
+                console.print("\n[bold yellow]📏 제목 크기 선택:[/bold yellow]")
+                console.print("1. 작게 (48pt)")
+                console.print("2. 보통 (64pt) [기본값]")
+                console.print("3. 크게 (80pt)")
+                console.print("4. 매우 크게 (96pt)")
+                console.print("5. 사용자 지정")
+                
+                size_choice = Prompt.ask("선택", choices=["1", "2", "3", "4", "5"], default="2")
+                
+                if size_choice == "1":
+                    title_font_size = 48
+                    artist_font_size = 28
+                elif size_choice == "2":
+                    title_font_size = 64
+                    artist_font_size = 36
+                elif size_choice == "3":
+                    title_font_size = 80
+                    artist_font_size = 44
+                elif size_choice == "4":
+                    title_font_size = 96
+                    artist_font_size = 52
+                else:  # 사용자 지정
+                    title_font_size = int(Prompt.ask("[bold cyan]제목 폰트 크기 (픽셀)[/bold cyan]", default="64"))
+                    artist_font_size = int(Prompt.ask("[bold cyan]아티스트 폰트 크기 (픽셀)[/bold cyan]", default="36"))
         else:
             self.show_whisper_install_guide()
         
@@ -562,7 +709,11 @@ class AudioVideoMerger:
             return
         
         # 합치기 실행
-        success = self.merge_audio_video(video_path, audio_path, output_path, audio_mode)
+        if music_title:
+            success = self.merge_audio_video(video_path, audio_path, output_path, audio_mode, 
+                                           music_title, artist_name, title_font_size, artist_font_size)
+        else:
+            success = self.merge_audio_video(video_path, audio_path, output_path, audio_mode)
         
         # 자막 처리
         subtitle_path = None
@@ -591,6 +742,17 @@ class AudioVideoMerger:
                         # 편집 후 다시 미리보기
                         console.print("\n[bold yellow]📝 편집된 자막:[/bold yellow]")
                         self.show_subtitle_preview(subtitle_path)
+                    
+                    # 외부에서 편집한 자막 파일 사용 옵션
+                    if Confirm.ask("\n[bold yellow]외부에서 편집한 자막 파일을 사용하시겠습니까?[/bold yellow]", default=False):
+                        # 기존 자막 파일 목록 표시
+                        subtitle_files = self.get_subtitle_files()
+                        if subtitle_files:
+                            selected_subtitle = self.select_subtitle_file(subtitle_files)
+                            if selected_subtitle:
+                                subtitle_path = selected_subtitle
+                                console.print(f"[bold green]✅ 선택된 자막 파일: {os.path.basename(subtitle_path)}[/bold green]")
+                                self.show_subtitle_preview(subtitle_path)
                     
                     # 자막 적용 여부 최종 확인
                     if Confirm.ask("\n[bold yellow]이 자막을 동영상에 적용하시겠습니까?[/bold yellow]", default=True):
