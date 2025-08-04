@@ -1,0 +1,42 @@
+#51-60구간 AI 비디오 프롬프트 (안경 수리 실패)
+#Phase 5: 안경 수리 실패와 분노 (500-600초, 구간 51-60)
+
+#프롬프트 51 (500-510초) - 부러진 안경 검토
+16-year-old Quinn with curly black hair picks up his broken glasses from the desk, examining the damaged frames in his hands. The hinges have completely fallen off, and the lenses are loose in their frames. His expression shows a mixture of resignation and determination as he prepares to attempt yet another repair. The warm apartment lighting emphasizes the worn condition of the glasses.
+#Key Elements: 손상된 안경의 세부사항, 떨어진 경첩, 체념과 결심이 섞인 표정
+
+#프롬프트 52 (510-520초) - 수리 시도 시작
+Quinn carefully tries to fit the loose lens back into place within the broken frame. His movements are gentle and precise, showing years of experience with makeshift repairs. The TV continues its background noise as he concentrates on the delicate task. His face shows intense focus despite the frustration building inside him.
+#Key Elements: 조심스러운 렌즈 끼우기, 수년간의 수리 경험, 집중하는 표정
+
+#프롬프트 53 (520-530초) - 점점 강해지는 시도
+The lens refuses to stay in place, slipping out repeatedly. Quinn's patience begins to wear thin as he tries more forcefully to push the lens into the damaged frame. "Come on, just get in!" he mutters through gritted teeth, his frustration becoming visible in his increasingly aggressive hand movements. The warm lighting contrasts with his growing agitation.
+#Key Elements: 계속 빠지는 렌즈, 점점 거칠어지는 손동작, 이를 악무는 표정
+
+#프롬프트 54 (530-540초) - 분노의 조짐
+Quinn's frustration reaches a boiling point as the lens continues to resist his efforts. His face contorts with anger as months of accumulated disappointments - the daily harassment, 112 failed experiments, his isolated life - all converge on this one broken piece of glass. His breathing becomes heavier, and his hands begin to shake with suppressed rage.
+#Key Elements: 분노로 일그러진 얼굴, 누적된 좌절감의 폭발, 떨리는 손
+
+#프롬프트 55 (540-550초) - 렌즈 파손 순간
+In his desperation and anger, Quinn pushes too hard. The plastic lens suddenly crumbles into sharp pieces in his hands. The sound of breaking plastic cuts through the apartment's quiet atmosphere. His eyes widen in shock as he realizes he has destroyed his only means of clear vision. Time seems to freeze for a moment as the reality hits him.
+#Key Elements: 렌즈가 부서지는 순간, 플라스틱 파편, 충격에 크게 뜬 눈
+
+#프롬프트 56 (550-560초) - 상처 발생
+A sharp shard of the broken lens cuts deep into Quinn's thumb, immediately drawing blood. He cries out in pain and surprise, dropping the remaining pieces of his glasses. The bright red blood contrasts starkly with his pale skin and the warm apartment lighting. His face shows both physical pain and emotional devastation.
+#Key Elements: 엄지손가락의 깊은 상처, 밝은 빨간 피, 고통에 찡그린 얼굴
+
+#프롬프트 57 (560-570초) - 고통의 외침
+Quinn screams in frustration and pain, his voice echoing through the small apartment. The sound cuts through the TV's background noise, emphasizing his complete isolation. He clutches his bleeding thumb while staring at the scattered remains of his glasses on the desk. The physical pain mirrors his emotional breaking point.
+#Key Elements: 고통과 좌절의 절규, 아파트에 울리는 소리, 흩어진 안경 파편
+
+#프롬프트 58 (570-580초) - 분노 폭발
+"Why does the world hate me?!" Quinn shouts as he kicks the table in explosive rage. All his pent-up emotions - years of loneliness, daily humiliation, repeated failures, and now this final straw - erupt in a moment of pure fury. The desk shakes, and items rattle as his anger fills the small space. The TV's chatter continues indifferently.
+#Key Elements: 책상을 차는 폭발적 분노, 흔들리는 책상과 물건들, 세상에 대한 원망
+
+#프롬프트 59 (580-590초) - 진정과 정리
+After his outburst, Quinn gradually calms down, his breathing slowly returning to normal. He begins methodically cleaning up the small pieces of broken glass scattered around the desk area. His movements are careful to avoid cutting himself further. The reality of his situation - no glasses, bleeding thumb, another failure - settles over him like a heavy weight.
+#Key Elements: 점진적으로 진정되는 모습, 조심스럽게 유리조각 치우기, 현실 인식
+
+#프롬프트 60 (590-600초) - 운명의 발견
+As Quinn cleans up the debris, he notices that one piece of glass has landed on top of the mysterious red book. He reaches to remove the shard, preparing to clear his workspace completely. His bleeding thumb hovers over the ancient tome as he focuses on the glass fragment. This moment of mundane cleanup is about to become the catalyst for everything that follows.
+#Key Elements: 책 위의 유리조각, 피 흘리는 엄지손가락, 운명적 순간의 전조

@@ -1,0 +1,42 @@
+#21-30구간 AI 비디오 프롬프트 (귀가 및 아파트 도착)
+#Phase 2: 귀가 및 아파트 도착 (200-300초, 구간 21-30)
+
+#프롬프트 21 (200-210초) - 학교에서 거리로
+16-year-old Quinn with curly black hair exits the school building, holding his broken glasses in his hand instead of wearing them. The afternoon sunlight feels warm on his face after the harsh institutional lighting. He walks slowly down the street, his posture showing emotional and physical exhaustion from the day's events. Urban environment with moderate foot traffic.
+#Key Elements: 자연광으로의 전환, 손에 든 안경, 지친 걸음걸이
+
+#프롬프트 22 (210-220초) - 도시 거리 걷기
+Quinn walks through city streets toward his apartment, his broken glasses dangling from his hand. Pedestrians pass by without acknowledging him, emphasizing his invisibility in the world. The urban environment looks ordinary but feels isolating. Soft natural lighting creates a melancholic atmosphere as he navigates through the everyday crowd.
+#Key Elements: 도시의 익명성, 지나가는 행인들, 우울한 분위기
+
+#프롬프트 23 (220-230초) - 아파트 단지 접근
+Quinn approaches a modest government housing complex - simple, utilitarian buildings that lack warmth or personality. The architecture reflects the institutional nature of his living situation. He looks up at the building with resignation, knowing this sterile place is his only refuge. Overcast lighting emphasizes the impersonal atmosphere.
+#Key Elements: 정부 제공 아파트의 딱딱한 외관, 체념적 표정, 제도적 건축물
+
+#프롬프트 24 (230-240초) - 계단 오르기
+Quinn slowly climbs the concrete stairs of the apartment building, each step echoing in the empty stairwell. His footsteps sound lonely in the sterile space. He pauses briefly on a landing, adjusting his grip on his broken glasses and school bag. The harsh fluorescent lighting in the stairwell reminds him of school.
+#Key Elements: 콘크리트 계단의 메아리, 외로운 발소리, 형광등 조명
+
+#프롬프트 25 (240-250초) - 아파트 문 앞
+Quinn stands before his apartment door, fishing keys from his pocket with his free hand while holding his broken glasses. The hallway is dimly lit and impersonal, with identical doors stretching down the corridor. He takes a deep breath before inserting the key, preparing to enter his solitary world. Institutional lighting creates long shadows.
+#Key Elements: 열쇠 찾기, 똑같은 문들이 늘어선 복도, 깊은 한숨
+
+#프롬프트 26 (250-260초) - 원룸 진입
+Quinn opens the door and steps into his small, cramped single-room apartment. The space is barely large enough for basic necessities - a single bed, small desk, and minimal furniture. Everything is neat but impersonal, emphasizing his isolation. Warm but dim lighting contrasts with the harsh outside world, creating his private sanctuary.
+#Key Elements: 좁은 원룸의 전체 조망, 최소한의 가구, 개인적인 피난처
+
+#프롬프트 27 (260-270초) - 일상 루틴 시작
+Quinn sets down his school bag and places his broken glasses carefully on the small desk. He moves through his apartment with familiar routine, though each action feels heavy with the day's disappointments. The camera captures the methodical nature of his solitary life. Soft interior lighting creates intimacy in the small space.
+#Key Elements: 가방과 안경 내려놓기, 익숙한 일상 루틴, 혼자만의 공간
+
+#프롬프트 28 (270-280초) - TV 켜기
+Quinn turns on the small TV mounted on the wall, not to watch but purely for background noise. The flickering screen provides the only source of voices in his silent apartment. He doesn't pay attention to the content - it's simply to make him feel less alone. The TV's glow adds to the warm lighting of his sanctuary.
+#Key Elements: 배경음용 TV, 혼자가 아닌 듯한 착각, 화면의 희미한 빛
+
+#프롬프트 29 (280-290초) - 침대 위 여행가방
+Quinn notices the single suitcase on top of his bed containing all his worldly possessions, neatly packed and ready. The sight reminds him of his transient status - a 16-year-old with no permanent family, living on government assistance. He touches the suitcase briefly, a gesture that shows both his vulnerability and resilience.
+#Key Elements: 모든 소지품이 든 여행가방, 임시적 생활의 상징, 취약함과 강인함
+
+#프롬프트 30 (290-300초) - 서랍에서 책 꺼내기
+Quinn walks toward a small cabinet and pulls open a drawer that accommodates a single, special item. He carefully lifts out a large, thick hardcover book - the mysterious red tome. The book's blood-red cover with ancient jawbone designs immediately draws attention. His expression shows a mixture of curiosity, frustration, and desperate hope as he prepares for another attempt.
+#Key Elements: 신중하게 꺼내는 빨간 책, 턱뼈 무늬의 신비로운 표지, 호기심과 절망이 섞인 표정

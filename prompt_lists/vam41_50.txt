@@ -1,0 +1,42 @@
+#41-50구간 AI 비디오 프롬프트 (실험 결과와 회상)
+#Phase 4: 실험 결과와 회상 (400-500초, 구간 41-50)
+
+#프롬프트 41 (400-410초) - 침대로 물러나기
+16-year-old Quinn with curly black hair lies down on his single bed, staring at the ceiling with exhaustion and disappointment. The failed experiment weighs heavily on his mind as he processes another setback. The TV continues playing in the background, its flickering light mixing with the warm apartment lighting. His expression shows the accumulated weight of 112 failures.
+#Key Elements: 천장을 바라보는 지친 표정, 실험 실패의 무게감, TV의 깜빡이는 빛
+
+#프롬프트 42 (410-420초) - TV 뉴스 시작
+The TV news begins playing, drawing Quinn's partial attention. "The Peace Treaty with the Dalki race has lasted for five years now, but officials are saying that tension is rising once again. Now we must prepare for another war." The news anchor's serious tone contrasts with Quinn's personal struggles, connecting his individual pain to the world's larger conflicts.
+#Key Elements: 뉴스 앵커의 진지한 표정, 달키 전쟁 관련 뉴스, 개인과 세계의 연결
+
+#프롬프트 43 (420-430초) - 달키 전쟁 뉴스
+The TV displays footage and information about the Dalki race - humanoid beings with scaled skin and dragon-like tails. News graphics show their superior technology and airships that made human weapons useless. Quinn watches with growing interest, the news providing context for his parents' absence and the world's current state of unease.
+#Key Elements: 달키족의 모습 (비늘, 꼬리), 우수한 기술력, 인간 무기의 무력함
+
+#프롬프트 44 (430-440초) - Quinn의 집중
+Quinn turns his attention more fully to the TV screen, his expression becoming serious and contemplative. The mention of war and conflict resonates with his personal history - growing up without knowing his parents who died in the Dalki War. The warm apartment lighting contrasts with the harsh reality being discussed on the news.
+#Key Elements: TV에 집중하는 진지한 표정, 전쟁과 개인사의 연결, 복잡한 감정
+
+#프롬프트 45 (440-450초) - 부모님 회상 시작
+As the news continues, Quinn's mind drifts to memories of his parents whom he never really knew. His expression becomes distant and melancholic as he imagines what they might have looked like. The TV's glow creates a dreamlike atmosphere as he enters a flashback state. Visual transition begins from present to memory.
+#Key Elements: 먼 곳을 바라보는 눈빛, 꿈꾸는 듯한 표정, 회상으로의 시각적 전환
+
+#프롬프트 46 (450-460초) - 10살 때의 기억
+Flashback sequence: A younger Quinn, age 10, stands at his apartment door as a government agent in a dark suit approaches with a large red book. The visual style shifts to a softer, memory-like quality with desaturated colors. The agent's face is partially obscured, emphasizing the impersonal nature of the government's involvement in Quinn's life.
+#Key Elements: 10살 Quinn의 모습, 정부 요원, 빨간 책, 회상의 시각적 스타일
+
+#프롬프트 47 (460-470초) - 요원의 말
+The government agent hands the mysterious red book to young Quinn. "This is the only thing your parents possessed, one that they passed down when they died," the agent says in a cold, official tone. Young Quinn takes the book with both hands, not understanding its significance but recognizing its importance. The memory maintains its soft, desaturated visual quality.
+#Key Elements: 책을 건네는 장면, 요원의 차가운 말투, 어린 Quinn의 순진한 표정
+
+#프롬프트 48 (470-480초) - 현재로 복귀
+Quinn returns to the present moment, the memory fading as the TV news continues in the background. His expression shows the pain of growing up alone, supported only by government assistance while other children had families. The warm apartment lighting returns to normal as he processes the connection between his parents' death and the ongoing world conflicts.
+#Key Elements: 현재로 돌아오는 시각적 전환, 고아로서의 고통, 세상과의 연결 인식
+
+#프롬프트 49 (480-490초) - 세상의 불공평함
+Quinn sits up on his bed, his face showing a mixture of anger and despair. "Why is the world so unfair?" he asks aloud, his voice carrying the weight of accumulated injustices - losing his parents, daily harassment, 112 failed experiments, and living in government-provided isolation. The TV continues its background chatter about world tensions.
+#Key Elements: 분노와 절망이 섞인 표정, 부당함에 대한 외침, 누적된 불의의 무게
+
+#프롬프트 50 (490-500초) - 다시 책상으로
+Quinn gets up from his bed with renewed, if desperate, determination. He walks toward his desk where the mysterious red book still sits, unchanged and mocking. His movement shows both resignation and stubborn hope - perhaps the next attempt might be different. The TV's background noise emphasizes his solitude as he prepares for another confrontation with the impossible.
+#Key Elements: 체념적이지만 굴복하지 않는 걸음, 변함없는 빨간 책, 고독한 도전 의지

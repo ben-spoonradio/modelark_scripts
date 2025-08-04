@@ -1,0 +1,42 @@
+#31-40구간 AI 비디오 프롬프트 (책 실험 시작)
+#Phase 3 전반부: 책 실험 시작 (300-400초, 구간 31-40)
+
+#프롬프트 31 (300-310초) - 책을 책상에 배치
+16-year-old Quinn with curly black hair carefully places the mysterious red book on his small desk. The book's blood-red cover with ancient jawbone designs looks imposing under the warm apartment lighting. He handles it with both reverence and determination, preparing for what he hopes will be a breakthrough. The TV continues playing in the background, adding ambient sound to his focused preparation.
+#Key Elements: 신중하게 책을 놓는 모습, 턱뼈 무늬의 신비로운 표지, 경외감과 결심
+
+#프롬프트 32 (310-320초) - 실험 도구 준비
+Quinn opens his school bag and carefully extracts a small test tube half-filled with colorless liquid. His movements are methodical and scientific, showing this isn't his first attempt. The glass tube catches the apartment's warm lighting as he examines its contents. His expression shows focused determination mixed with underlying desperation from previous failures.
+#Key Elements: 과학적이고 체계적인 준비, 투명한 시험관, 이전 실패의 그림자
+
+#프롬프트 33 (320-330초) - 실험 112번 선언
+Quinn holds the test tube up to the light, examining the hydrochloric acid solution. "Test 112, hydrochloric acid. Let's see how it goes," he says with mixture of hope and resignation. His voice carries the weight of 111 previous failures, but his scientific curiosity drives him forward. The warm apartment lighting creates an intimate laboratory atmosphere.
+#Key Elements: 시험관을 빛에 비추어 보기, 112번째 시도의 무게감, 과학적 호기심
+
+#프롬프ト 34 (330-340초) - 첫 방울 떨어뜨리기
+Quinn begins slowly pouring the colorless liquid from the test tube onto the ancient red book. His hand is steady despite his nervousness, showing his scientific discipline. The first drops of hydrochloric acid make contact with the mysterious cover. He watches intently for any reaction, his breathing slightly accelerated with anticipation.
+#Key Elements: 조심스러운 첫 방울, 과학자적 정밀함, 긴장된 기대감
+
+#프롬프트 35 (340-350초) - 반응 관찰
+Quinn leans closer to observe the book's surface where the acid has been applied. His eyes, without his broken glasses, strain to detect any change or reaction. "So far, there is no reaction," he mutters with growing disappointment. The TV's background noise contrasts with the intense silence of his focused observation. Warm lighting emphasizes his concentrated expression.
+#Key Elements: 가까이서 관찰하는 모습, 안경 없이 힘들게 보는 시선, 실망의 기색
+
+#프롬프트 36 (350-360초) - 계속해서 시도
+Undeterred by the lack of initial reaction, Quinn continues to pour more of the hydrochloric acid solution onto different areas of the book's cover. His movements become slightly more urgent, hoping that more liquid might trigger some response. The ancient jawbone designs on the cover remain completely unaffected by the chemical treatment.
+#Key Elements: 더 많은 양의 산 붓기, 점점 급해지는 움직임, 변화 없는 책 표지
+
+#프롬프트 37 (360-370초) - 모든 액체 사용
+Quinn empties the remaining contents of the test tube onto the book, using every last drop of the hydrochloric acid. His expression shows growing frustration as he realizes this attempt is following the same pattern as all previous ones. The book's surface shows no damage, no reaction, no change whatsoever - it remains perfectly pristine and untouchable.
+#Key Elements: 마지막 방울까지 사용, 좌절감의 증가, 완벽하게 무손상인 책
+
+#프롬프트 38 (370-380초) - 세심한 검사
+Quinn carefully examines the book while pulling out his notebook to record the results. He inspects every inch of the cover, looking for any sign of damage or change from the acid treatment. His scientific methodology remains intact despite his emotional disappointment. The warm apartment lighting reveals his meticulous attention to detail.
+#Key Elements: 세밀한 육안 검사, 노트 꺼내기, 과학적 방법론 유지
+
+#프롬프트 39 (380-390초) - 결과 기록
+Quinn writes in his notebook, documenting yet another failure. His handwriting shows the practiced routine of someone who has recorded many unsuccessful experiments. "Another failure," he mutters to himself, the weight of 112 failed attempts clearly visible in his posture and expression. The TV continues its background chatter, emphasizing his isolation.
+#Key Elements: 실패 기록하기, 익숙한 루틴, 112번의 실패가 주는 무게감
+
+#프롬프트 40 (390-400초) - 좌절과 질문
+Quinn stares at the unmarked, undamaged book with deep frustration. "Why won't you open? Why did mom and dad even have this thing?" he asks aloud, his voice cracking with emotion. The mysterious red tome sits mockingly pristine on his desk, completely unaffected by his scientific attempts. His expression shows the accumulated weight of repeated failures and unanswered questions about his parents.
+#Key Elements: 책을 응시하는 좌절된 시선, 부모님에 대한 질문, 감정이 복받쳐 오르는 목소리

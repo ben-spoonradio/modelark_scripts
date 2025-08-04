@@ -1,0 +1,41 @@
+#Phase 1: 학교 괴롭힘 장면 (0-100초, 구간 1-10)
+
+#프롬프트 1 (0-10초) - 복도 걷기
+16-year-old Quinn with slightly curly black hair and broken taped glasses walks down a modern high school corridor carrying an old book. Other students in uniforms move in groups, creating contrast with his solitude. Harsh fluorescent lighting creates institutional atmosphere. Camera follows from behind, emphasizing isolation and determination.
+#Key Elements: 고독한 걸음걸이, 책을 소중히 안고 있는 모습, 다른 학생들과의 대비
+
+#프롬프트 2 (10-20초) - 조롱 시작
+A bully student points and laughs at Quinn in the school hallway, shouting "Just an old book. Try not to die by tripping over yourself, Quinn!" Other students join the mockery. Quinn continues walking but his shoulders tense with growing frustration. Cold fluorescent lighting emphasizes the hostile environment.
+#Key Elements: 조롱하는 학생의 표정과 제스처, Quinn의 긴장된 어깨, 주변 학생들의 반응
+
+#프롬프트 3 (20-30초) - Quinn의 반응
+Quinn slows his stride and stops in the school corridor. His broken glasses slip down his face as he processes the harassment. The daily mockery weighs on him visibly - his jaw clenches, hands grip the book tighter. Other students continue their conversations, oblivious to his inner turmoil. Harsh institutional lighting.
+#Key Elements: 걸음을 멈추는 순간, 안경이 미끄러지는 디테일, 내재된 분노
+
+#프롬프트 4 (30-40초) - 안경 조정
+16-year-old Quinn pushes his broken taped glasses back up onto the ridge of his nose. The glasses look heavily worn and crooked, with visible tape on the temples. He takes a deep breath, building resolve. The camera focuses on the glasses' poor condition and his determined eyes behind them. School corridor background with fluorescent lighting.
+#Key Elements: 안경의 낡은 상태 클로즈업, 결심을 다지는 눈빛, 테이프로 고정된 디테일
+
+#프롬프트 5 (40-50초) - 도발적 반격
+Quinn turns around decisively and raises his middle finger toward the bully, his face showing defiant anger. "I bet you don't even know how many fingers I'm holding up," he taunts back. His broken glasses catch the fluorescent light as he stands his ground. The school corridor falls silent momentarily as students notice the confrontation.
+#Key Elements: 중지를 드는 도발적 제스처, 도전적인 표정, 주변의 순간적 정적
+
+#프롬프트 6 (50-60초) - 괴롭히는 학생의 분노
+The bully student clenches his fists in rage, his face contorting with anger. "You level one piece of crap! When are you going to learn that you don't belong in this world?" he shouts while starting to run toward Quinn. Other students step back, sensing the escalating violence. Harsh school lighting creates dramatic shadows.
+#Key Elements: 분노로 일그러진 얼굴, 주먹을 쥔 손, 달려오는 역동적 움직임
+
+#프롬프트 7 (60-70초) - 초록 에너지볼 형성
+The angry bully places both hands together, and a glowing green ball of energy begins forming between his palms. Supernatural light emanates from the energy sphere, contrasting with the cold fluorescent corridor lighting. Quinn's eyes widen behind his broken glasses as he realizes the magical threat. Students gather in the background, watching in anticipation.
+#Key Elements: 초록색 에너지볼의 신비로운 빛, Quinn의 놀란 표정, 마법과 현실의 대비
+
+#프롬프트 8 (70-80초) - 에너지 빔 발사
+The bully throws his hands forward, launching a brilliant green energy beam toward Quinn. The supernatural light cuts through the school corridor air. Quinn has nowhere to dodge - his eyes show resignation behind broken glasses as the beam approaches. The magical energy creates dynamic lighting effects against the institutional corridor walls.
+#Key Elements: 에너지 빔의 궤적과 빛, Quinn의 체념적 표정, 피할 수 없는 상황
+
+#프롬프트 9 (80-90초) - 충격과 낙상
+The green energy beam strikes Quinn, lifting his body into the air and sending him flying backward toward the far corridor wall. His broken glasses fly off his face, his book tumbles through the air. The impact creates dust and debris. Dramatic lighting captures the violent moment as students gasp in shock.
+#Key Elements: 공중으로 날아가는 몸, 흩어지는 안경과 책, 충격의 순간
+
+#프롬프트 10 (90-100초) - 먼지 속에서
+Dust settles in the damaged school corridor as Quinn lies against the wall. His slightly curly black hair becomes visible through the clearing smoke and debris. Students crowd around but keep their distance. The harsh fluorescent lighting reveals the aftermath of the magical attack. Quinn slowly begins to stir, showing his resilience despite the assault.
+#Key Elements: 가라앉는 먼지, 곱슬머리가 드러나는 모습, 구경하는 학생들, 생존의 의지

@@ -1,0 +1,41 @@
+#Phase 1 후반부: 괴롭힘 여파 (100-200초, 구간 11-20)
+
+#프롬프트 11 (100-110초) - 구경하는 학생들
+Crowd of high school students gather around the damaged corridor wall, whispering and pointing at the aftermath. "What's going on? Are they fighting on the last day of school?" one student asks curiously. The harsh fluorescent lighting reveals the destruction while students maintain a safe distance. Their faces show mix of excitement and concern, but no real empathy.
+#Key Elements: 호기심 어린 학생들의 표정, 속삭이는 모습, 안전거리 유지
+
+#프롬프트 12 (110-120초) - 여학생의 접근
+A female student with concern on her face runs toward the damaged wall to check on the injured student's safety. She moves with genuine worry, her school uniform flowing as she hurries through the corridor. Other students watch her approach while maintaining their distance. Cold institutional lighting emphasizes her solitary act of compassion.
+#Key Elements: 진정한 걱정을 보이는 여학생, 달려가는 움직임, 다른 학생들과의 대비
+
+#프롬프트 13 (120-130초) - Quinn 확인 후 철회
+As the dust settles, Quinn's curly black hair becomes visible. The female student finally sees who it is and instantly backs away, her expression changing from concern to awkwardness. She quickly turns and walks back to her friends as if nothing happened. The harsh school lighting reveals Quinn slowly sitting up among the debris.
+#Key Elements: 여학생의 표정 변화, 급작스러운 철회, Quinn의 정체성 확인
+
+#프롬프트 14 (130-140초) - 친구들의 조롱
+The female student returns to her group of friends who immediately burst into laughter. "I can't believe you tried to help him," they mock her. "I didn't see who it was," she retorts with flushed cheeks, clearly embarrassed. Their cruel laughter echoes through the school corridor while Quinn remains isolated in the background.
+#Key Elements: 조롱하는 친구들, 부끄러워하는 여학생, 배경의 고립된 Quinn
+
+#프롬프트 15 (140-150초) - Quinn 일어서기
+16-year-old Quinn slowly stands up, brushing dust and debris from his clothes. His curly black hair is disheveled, and he looks around for his broken glasses on the corridor floor. The fluorescent lights reveal his dignity despite the humiliation. Students continue their conversations, already losing interest in the incident.
+#Key Elements: 천천히 일어서는 모습, 흐트러진 머리, 바닥의 안경 찾기
+
+#프롬프트 16 (150-160초) - 부러진 안경 확인
+Quinn picks up his broken glasses from the school floor. To his dismay, one of the hinges has fallen off completely, making them even more damaged than before. He holds the broken frames in his hand, examining the additional damage with a mixture of frustration and resignation. The harsh institutional lighting emphasizes his vulnerability.
+#Key Elements: 안경의 추가 손상, 좌절스러운 표정, 경첩이 완전히 떨어진 상태
+
+#프롬프트 17 (160-170초) - 깊은 좌절
+Quinn stares at his broken glasses hanging from his hand, his face showing deep disappointment. "Damn it, not again," he mutters under his breath. The weight of daily harassment and constant equipment failure visibly weighs on his shoulders. Cold fluorescent lighting creates harsh shadows on his defeated expression.
+#Key Elements: 깊은 실망의 표정, 어깨에 실린 무게감, 반복되는 좌절감
+
+#프롬프트 18 (170-180초) - 복도를 떠나는 Quinn
+Quinn doesn't bother to stay at school like the other students. He picks up his scattered belongings and begins walking away down the long school corridor. His gait shows both physical pain and emotional exhaustion. Other students continue their end-of-term celebrations, creating a stark contrast with his solitary departure.
+#Key Elements: 외로운 뒷모습, 흩어진 물건 챙기기, 다른 학생들과의 대비
+
+#프롬프트 19 (180-190초) - 학생들의 즐거운 일상
+Wide shot showing other students having animated conversations in their circles around the school corridor. Some are laughing while others have tears, thinking it's the last time they'll see each other. Friends exchange phone numbers and make summer plans. The warm interactions highlight Quinn's isolation as he walks past them unnoticed.
+#Key Elements: 친구들의 따뜻한 교류, 마지막 날의 감정, Quinn의 소외감
+
+#프롬프트 20 (190-200초) - 학교를 떠나며
+Quinn approaches the school's main entrance, his broken glasses hanging loosely in his hand. The afternoon sunlight streaming through the entrance doors creates a transition from the harsh institutional fluorescent lighting to natural warmth outside. He pauses briefly at the threshold, looking back one last time before stepping into the outside world.
+#Key Elements: 학교 입구의 자연광, 내부와 외부의 조명 대비, 마지막 뒤돌아보기
