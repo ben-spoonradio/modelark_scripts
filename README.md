@@ -54,21 +54,32 @@ cd modelark_scripts
 - 📦 **한 번에 여러 개**의 동영상을 동시에 생성!
 - 🎯 **Pro 모델**로 1080p 고품질 동영상 제작!
 - 🔄 **자동 합치기**: 연속 클립들을 하나의 완성된 동영상으로!
+- 🎵 **NEW! 오디오 추가**: 동영상에 배경음악이나 나레이션을 자동으로 추가!
+- 🎤 **NEW! Whisper 음성인식**: 오디오 파일을 자동으로 자막으로 변환!
+- 📝 **NEW! 자막 편집**: SRT 자막 파일을 미리보기하고 편집하는 기능!
 - ⚙️ **크기, 길이, 품질** 등 모든 설정을 자유자재로 조절!
 - 🖱️ **클릭 한 번으로 설정**: 실행 시 설정 파일 링크 제공으로 편리한 수정!
 - 📁 **자동 이미지 선택**: images/ 폴더에서 이미지 자동 감지 및 선택 기능!
+- 🎨 **음악 비디오 템플릿**: 276개의 다양한 프롬프트로 음악 비디오 제작!
 
 ## 📁 파일 구조
 
 ```
 modelark_scripts/
 ├── 🎬 easy_video_maker.py           # 메인 동영상 생성기
+├── 🎵 add_audio_to_video.py         # NEW! 오디오/비디오 합치기 도구
+├── 🖼️ image_to_video_converter.py   # 이미지-투-비디오 변환기
 ├── 🔧 webhook_server.py             # 웹훅 서버 (선택사항)
 ├── 📝 batch_prompts.txt             # 배치 프롬프트 (Agent-4 드라마)
 ├── ⚙️  config.txt                   # 동영상 설정
 ├── 🚀 run.sh                        # 자동 실행 스크립트
+├── 📊 requirements.txt              # Python 패키지 의존성
 ├── 📁 images/                       # 이미지 파일들
 ├── 📁 videos/                       # 생성된 동영상들
+├── 🎵 audio/                        # NEW! 오디오 파일들 (MP3, WAV 등)
+├── 🎬 videos_with_audio/            # NEW! 오디오가 추가된 동영상들
+├── 📝 prompt_lists/                 # NEW! 다양한 프롬프트 템플릿
+├── 📊 reviews/                      # 코드 리뷰 히스토리
 ├── 📖 사용법.md                     # 상세 사용법
 ├── 🔗 chain_usage.md                # 연속 체인 사용법
 ├── 📋 agent4_sections.md            # Agent-4 드라마 제작 가이드
@@ -135,6 +146,59 @@ python easy_video_maker.py --chain 1 5
 - 🎞️ **자동 합치기**: 생성 완료 후 하나의 동영상으로 자동 합치기 옵션 제공
 
 **🆕 NEW!** 연속 클립 생성 완료 후 자동으로 하나의 동영상으로 합치는 옵션이 제공됩니다!
+
+## 🎵 오디오 기능 (NEW!)
+
+### 🎬 동영상에 오디오 추가하기
+```bash
+python add_audio_to_video.py
+```
+이제 생성된 동영상에 배경음악이나 나레이션을 쉽게 추가할 수 있어요!
+
+#### ✨ 지원 기능
+- **🎵 오디오 합치기**: MP3, WAV, AAC, M4A, OGG 등 다양한 포맷 지원
+- **🎤 Whisper 음성인식**: 오디오를 자동으로 자막(SRT)으로 변환
+- **📝 자막 편집**: SRT 파일 미리보기 및 실시간 편집
+- **🎨 자막 스타일링**: 색상, 폰트, 위치 등 자막 스타일 커스터마이징
+- **📊 진행률 표시**: FFmpeg 처리 과정을 실시간으로 모니터링
+
+#### 🎯 사용 방법
+1. **📁 파일 준비**
+   - `videos/` 폴더에 동영상 파일 추가
+   - `audio/` 폴더에 오디오 파일 추가
+
+2. **🚀 실행**
+   ```bash
+   python add_audio_to_video.py
+   ```
+
+3. **⚙️ 옵션 선택**
+   - 동영상과 오디오 파일 선택
+   - Whisper 음성인식으로 자막 생성 (선택사항)
+   - 자막 편집 및 스타일 조정
+   - 최종 동영상 생성
+
+#### 🎨 자막 스타일 옵션
+- **배경색**: 검은색 반투명 배경
+- **폰트 색상**: 흰색, 노란색 등 다양한 색상
+- **위치 조정**: 하단, 중앙, 상단 배치 가능
+- **크기 조정**: 작은 자막부터 큰 자막까지
+
+#### 📂 결과 파일
+완성된 파일들이 `videos_with_audio/` 폴더에 저장됩니다:
+```
+videos_with_audio/
+├── video_with_audio_timestamp.mp4      # 오디오가 추가된 동영상
+├── audio_transcription_timestamp.srt   # 생성된 자막 파일
+└── video_with_subtitles_timestamp.mp4  # 자막이 포함된 최종 동영상
+```
+
+### 🎤 Whisper 음성인식 설치
+처음 사용할 때 Whisper 설치가 필요해요:
+```bash
+pip install openai-whisper
+```
+프로그램이 자동으로 설치 가이드를 제공해드립니다!
 
 ## 🎯 Agent-4 AI 드라마 프로젝트
 
@@ -384,7 +448,20 @@ videos/
 1. **📝 스크립트 작성** → `batch_prompts.txt`에 장면별 프롬프트 작성
 2. **🔗 체인 생성** → `--chain` 모드로 연결된 클립들 생성
 3. **🎬 자동 합치기** → 생성 완료 후 하나의 영화로 자동 합치기
-4. **🎉 완성!** → 하나의 완성된 동영상 획득
+4. **🎵 오디오 추가** → `add_audio_to_video.py`로 배경음악 추가
+5. **🎤 자막 생성** → Whisper로 자동 자막 생성 (선택사항)
+6. **🎉 완성!** → 음성과 자막이 포함된 완전한 동영상 획득
+
+### 🎬 완전한 영화 제작 워크플로우
+```bash
+# 1단계: 연속 동영상 생성
+python easy_video_maker.py --chain 1 5
+
+# 2단계: 오디오 추가 및 자막 생성
+python add_audio_to_video.py
+
+# 결과: 배경음악과 자막이 포함된 완성된 영화!
+```
 
 ### 🚀 개선된 사용자 경험
 - **🖱️ 설정 파일 링크**: 실행 시 config.txt, prompt.txt, batch_prompts.txt 파일 링크 제공
@@ -416,6 +493,31 @@ videos/
 - **1080p 고품질**: 유튜브, 광고용 최고급 영상
 - **다양한 화면비**: 21:9 시네마틱, 9:21 세로 영상 등
 - **정교한 디테일**: 더 세밀하고 자연스러운 움직임
+
+### 🎨 프롬프트 템플릿 라이브러리 (NEW!)
+
+이제 `prompt_lists/` 폴더에 276개의 다양한 프롬프트가 준비되어 있어요!
+
+#### 🎵 음악 비디오 템플릿
+- **music_video.txt**: 기본 음악 비디오 프롬프트
+- **music_video2.txt**: 감성적인 음악 비디오
+- **music_video3.txt**: 도시 배경 음악 비디오
+- **music_video4.txt**: 자연 배경 음악 비디오
+
+#### 🎭 감정별 테마
+- **tear.txt**: 감동적이고 눈물나는 장면들
+- **vam*.txt**: 66개의 전문적인 음악 비디오 시퀀스
+
+#### 📖 사용 방법
+```bash
+# 프롬프트 파일을 batch_prompts.txt로 복사
+cp prompt_lists/music_video.txt batch_prompts.txt
+
+# 음악 비디오 시퀀스 생성
+python easy_video_maker.py --chain 1 10
+```
+
+이렇게 하면 전문적인 음악 비디오를 쉽게 만들 수 있어요!
 
 ---
 
