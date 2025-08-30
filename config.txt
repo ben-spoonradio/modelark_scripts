@@ -3,7 +3,7 @@
 
 # image_url=https://postfiles.pstatic.net/MjAyNTA2MjNfMTc1/MDAxNzUwNjU1OTg4NDYz.__ZDL8WNidqRd0AZIInN33dlQy0nbJAQitbt2LYyvncg.lvhFfYHN8P1qyRGMZemZiJLnqkpkfNIcySPnkPudZ_Ug.JPEG/SE-4cc39538-ad4c-4149-a7c8-815e81d4b3bc.jpg?type=w3840
 #image_file=./images/1.png
-resolution=1080p
+resolution=720p
 # ratio=16:9
 # ratio=9:16
 duration=10
@@ -14,7 +14,7 @@ camerafixed=false
 # Pro 모델 사용 여부 (true/false)
 # Pro 모델은 더 높은 품질의 동영상을 생성하지만 토큰 사용량이 더 많음
 # 1080p 해상도는 Pro 모델에서만 지원됨
-use_pro_model=true
+use_pro_model=false
 
 # 참고사항:
 # - 이미지는 인터넷에서 접근 가능한 주소여야 합니다
